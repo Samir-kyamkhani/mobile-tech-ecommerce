@@ -20,6 +20,7 @@ import ShopPage from "./landing pages/pages/ShopPage.jsx";
 import CheckoutPage from "./landing pages/pages/CheckoutPage.jsx";
 import SupportPage from "./landing pages/pages/sUPPORTpAGE.JSX";
 import LoginPage from "./landing pages/pages/auth/LoginPage.jsx";
+import UserProfilePage from "./landing pages/pages/UserProfilePage.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="support" element={<SupportPage />} />
         <Route path="login" element={<LoginPage />} />
+        <Route path="profile" element={<UserProfilePage />} />
       </Route>
 
       <Route element={<DashboardLayout />}>

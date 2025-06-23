@@ -1,10 +1,12 @@
-import { Menu, Search, ShoppingCart, X } from "lucide-react";
+import { Menu, Search, ShoppingCart, X, User } from "lucide-react";
 import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
+
+  const isLoggedIn = true;
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -58,9 +60,7 @@ export default function Navbar() {
             </NavLink>
           </nav>
 
-          {/* Right-side buttons */}
           <div className="flex items-center space-x-4">
-            {/* Desktop Search */}
             <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2">
               <Search size={20} className="text-gray-400 mr-2" />
               <input
@@ -69,28 +69,38 @@ export default function Navbar() {
                 className="bg-transparent border-none outline-none w-64"
               />
             </div>
+
             <button
               className="p-2 text-gray-700 hover:text-blue-600"
               onClick={() => navigate("/checkout")}
             >
               <ShoppingCart size={24} />
             </button>
-            {/* Desktop Gradient Login Button */}
-            <NavLink
-              to="/login"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 focus:ring-4  transition-all duration-200 flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              Login
-            </NavLink>
+
+            {isLoggedIn ? (
+              <NavLink
+                to="/profile"
+                className="p-2 text-gray-700 hover:text-blue-600"
+              >
+                <User className="w-8 h-8 p-1 text-white bg-gray-700 rounded-full" />
+
+              </NavLink>
+            ) : (
+              <NavLink
+                to="/login"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 focus:ring-4 transition-all duration-200 flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                Login
+              </NavLink>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu (unchanged) */}
       {showMobileMenu && (
         <div className="md:hidden bg-white border-t">
           <div className="px-4 py-2 space-y-2">
-            {/* Mobile Search */}
             <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2 mb-4">
               <Search size={20} className="text-gray-400 mr-2" />
               <input
@@ -99,7 +109,6 @@ export default function Navbar() {
                 className="bg-transparent border-none outline-none w-full"
               />
             </div>
-            {/* Mobile Navigation Links */}
             <NavLink
               to="/"
               end
@@ -131,14 +140,27 @@ export default function Navbar() {
             >
               Support
             </NavLink>
-            {/* Mobile Gradient Login Button */}
-            <NavLink
-              to="/login"
-              onClick={() => setShowMobileMenu(false)}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 focus:ring-4 transition-all duration-200 flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed"
-            >
-              Login
-            </NavLink>
+
+            {/* ✅ Mobile Login/Profile */}
+            {isLoggedIn ? (
+              <NavLink
+                to="/profile"
+                onClick={() => setShowMobileMenu(false)}
+                className="w-full flex items-center space-x-2 py-3 px-4 text-gray-700 hover:text-blue-600"
+              >
+                <User className="w-8 h-8 p-1 text-white bg-gray-700 rounded-full" />
+
+                <span>Profile</span>
+              </NavLink>
+            ) : (
+              <NavLink
+                to="/login"
+                onClick={() => setShowMobileMenu(false)}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 focus:ring-4 transition-all duration-200 flex items-center justify-center"
+              >
+                Login
+              </NavLink>
+            )}
           </div>
         </div>
       )}

@@ -32,7 +32,7 @@ const ProductModal = ({ product, onClose, onBuy }) => {
           />
           <h4 className="text-xl font-semibold mb-2">{product.name}</h4>
           <p className="text-gray-600 mb-2">Brand: {product.brand}</p>
-          <p className="text-lg font-bold mb-4">${product.price}</p>
+          <p className="text-lg font-bold mb-4">₹{product.price}</p>
 
           <ul className="mb-4 list-disc list-inside text-gray-700">
             {product.features.map((feature, i) => (

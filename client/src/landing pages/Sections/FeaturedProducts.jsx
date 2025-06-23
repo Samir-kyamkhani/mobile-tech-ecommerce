@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard";
-import ProductModal from "../components/ProductModal"; // ✅ Add this import
+import ProductModal from "../components/ProductModal";
+import { useNavigate } from "react-router-dom"; // ⬅️ For navigation
 
 const products = [
   {
@@ -58,8 +59,18 @@ const products = [
 ];
 
 export default function FeaturedProducts() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
+
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [checkoutRequested, setCheckoutRequested] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
 
   const addToCart = (product) => {
     setCart((prev) => {
@@ -70,15 +81,24 @@ export default function FeaturedProducts() {
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
+      } else {
+        return [...prev, { ...product, quantity: 1 }];
       }
-      return [...prev, { ...product, quantity: 1 }];
     });
   };
 
   const handleBuy = (product) => {
     addToCart(product);
     setSelectedProduct(null);
+    setCheckoutRequested(true);
   };
+
+  useEffect(() => {
+    if (checkoutRequested) {
+      navigate("/checkout");
+      setCheckoutRequested(false);
+    }
+  }, [checkoutRequested, navigate]);
 
   return (
     <section className="py-16">
@@ -93,6 +113,7 @@ export default function FeaturedProducts() {
               product={product}
               addToCart={addToCart}
               onView={setSelectedProduct}
+              cart={cart}
             />
           ))}
         </div>
