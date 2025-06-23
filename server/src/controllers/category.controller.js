@@ -105,7 +105,7 @@ const updateCategory = asyncHandler(async (req, res) => {
   // Set path to the old image
   const oldImagePath = path.join(
     __dirname,
-    "../../public/uploads/category",
+    "../../public/uploads",
     existingCategory.image,
   );
 
@@ -135,15 +135,17 @@ const updateCategory = asyncHandler(async (req, res) => {
   );
 });
 
-// Delete category
 const deleteCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  if (req.user.role !== "Admin") {
+  if (req.user?.role !== "Admin") {
     return ApiError.send(res, 403, "Only admins can delete a category.");
   }
 
-  const existingCategory = await prisma.category.findUnique({ where: { id } });
+  const existingCategory = await prisma.category.findUnique({
+    where: { id },
+    include: { products: true },
+  });
 
   if (!existingCategory) {
     return ApiError.send(res, 404, "Category not found.");
@@ -152,11 +154,15 @@ const deleteCategory = asyncHandler(async (req, res) => {
   if (existingCategory.image) {
     const imagePath = path.join(
       __dirname,
-      "../public/uploads/category",
+      "../../public/uploads",
       existingCategory.image,
     );
-    fs.unlink(imagePath, (err) => {
-      if (err) console.error("Error deleting image:", err.message);
+    deleteOldImage(imagePath);
+  }
+
+  if (existingCategory.products.length > 0) {
+    await prisma.product.deleteMany({
+      where: { categoryid: id },
     });
   }
 
@@ -164,7 +170,9 @@ const deleteCategory = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Category deleted successfully", {}));
+    .json(
+      new ApiResponse(200, "Category and its products deleted successfully"),
+    );
 });
 
 export {

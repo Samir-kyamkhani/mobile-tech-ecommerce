@@ -61,8 +61,8 @@ model Order {
   customer   User          @relation("CustomerOrders", fields: [customerid], references: [id])
   customerid String
   total      Decimal
-  status     OrderStatus
-  payment    PaymentStatus
+  status     OrderStatus? @default(Pending)
+  payment    PaymentStatus? @default(Un_Paid)
   date       DateTime      @default(now())
   duedate    DateTime?
   createdby  String
@@ -105,6 +105,7 @@ enum OrderStatus {
 }
 
 enum PaymentStatus {
+  Un_Paid
   Paid
   Pending
   Refunded

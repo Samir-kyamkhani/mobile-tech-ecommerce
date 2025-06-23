@@ -18,18 +18,13 @@ router.post(
   createProduct,
 );
 router.get("/get-products", authMiddleware, getAllProducts);
-router.get("/get-product", authMiddleware, getProductById);
+router.get("/get-product/:id", authMiddleware, getProductById);
 router.put(
-  "/update-product",
+  "/update-product/:id",
   authMiddleware,
   upload.single("image"),
   updateProduct,
 );
-router.delete(
-  "/delete-product",
-  authMiddleware,
-  upload.single("image"),
-  deleteProduct,
-);
+router.delete("/delete-product/:id", authMiddleware, deleteProduct);
 
 export default router;
