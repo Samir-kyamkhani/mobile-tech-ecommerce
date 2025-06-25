@@ -1,12 +1,13 @@
 import { Menu, Search, ShoppingCart, X, User } from "lucide-react";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
 
-  const isLoggedIn = true;
+  const { user } = useSelector((state) => state?.auth);
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -47,7 +48,7 @@ export default function Navbar() {
                 " hover:text-blue-600"
               }
             >
-              Products
+              Shop
             </NavLink>
             <NavLink
               to="/support"
@@ -77,14 +78,22 @@ export default function Navbar() {
               <ShoppingCart size={24} />
             </button>
 
-            {isLoggedIn ? (
-              <NavLink
-                to="/profile"
-                className="p-2 text-gray-700 hover:text-blue-600"
-              >
-                <User className="w-8 h-8 p-1 text-white bg-gray-700 rounded-full" />
-
-              </NavLink>
+            {user ? (
+              user.role === "Admin" ? (
+                <NavLink
+                  to="/dashboard"
+                  className="p-2 text-gray-700 hover:text-blue-600"
+                >
+                  <User className="w-8 h-8 p-1 text-white bg-gray-700 rounded-full" />
+                </NavLink>
+              ) : user.role === "Customer" ? (
+                <NavLink
+                  to="/profile"
+                  className="p-2 text-gray-700 hover:text-blue-600"
+                >
+                  <User className="w-8 h-8 p-1 text-white bg-gray-700 rounded-full" />
+                </NavLink>
+              ) : null
             ) : (
               <NavLink
                 to="/login"

@@ -13,14 +13,14 @@ const __dirname = path.dirname(__filename);
 
 // Create a new category
 const createCategory = asyncHandler(async (req, res) => {
-  const { categoryName, sku, description } = req.body;
+  const { name, sku, description } = req.body;
   const { id, role } = req.user;
 
   if (role !== "Admin") {
     return ApiError.send(res, 403, "Only admins can create a category.");
   }
 
-  if (!categoryName?.trim() || !sku?.trim() || !description?.trim()) {
+  if (!name?.trim() || !sku?.trim() || !description?.trim()) {
     return ApiError.send(
       res,
       400,
@@ -33,11 +33,11 @@ const createCategory = asyncHandler(async (req, res) => {
     return ApiError.send(res, 409, "SKU already exists.");
   }
 
-  const image = req.file?.filename || null;
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   const category = await prisma.category.create({
     data: {
-      name: categoryName.trim(),
+      name: name.trim(),
       sku: sku.trim(),
       description: description.trim(),
       image,
@@ -52,10 +52,6 @@ const createCategory = asyncHandler(async (req, res) => {
 
 // Get all categories
 const getAllCategories = asyncHandler(async (req, res) => {
-  if (req.user.role !== "Admin") {
-    return ApiError.send(res, 403, "Only admins can fetch categories.");
-  }
-
   const categories = await prisma.category.findMany({
     include: { creator: true, products: true },
   });
@@ -90,7 +86,7 @@ const getCategoryById = asyncHandler(async (req, res) => {
 // Update category
 const updateCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { categoryName, sku, description } = req.body;
+  const { name, sku, description } = req.body;
 
   if (req.user.role !== "Admin") {
     return ApiError.send(res, 403, "Only admins can update a category.");
@@ -102,26 +98,29 @@ const updateCategory = asyncHandler(async (req, res) => {
     return ApiError.send(res, 404, "Category not found.");
   }
 
-  // Set path to the old image
-  const oldImagePath = path.join(
-    __dirname,
-    "../../public/uploads",
-    existingCategory.image,
-  );
-
   let newImageFilename = existingCategory.image;
 
   if (req.file) {
-    newImageFilename = req.file.filename;
+    // Delete the old image if exists
+    if (existingCategory.image) {
+      const oldImageFileName = existingCategory.image.replace("/uploads/", "");
+      const oldImagePath = path.join(
+        __dirname,
+        "../../public/uploads",
+        oldImageFileName,
+      );
+      deleteOldImage(oldImagePath);
+    }
 
-    deleteOldImage(oldImagePath);
+    // Store new image path
+    newImageFilename = `/uploads/${req.file.filename}`;
   }
 
   // Update the category
   const updatedCategory = await prisma.category.update({
     where: { id },
     data: {
-      name: categoryName?.trim() || existingCategory.name,
+      name: name?.trim() || existingCategory.name,
       sku: sku?.trim() || existingCategory.sku,
       description: description?.trim() || existingCategory.description,
       image: newImageFilename,
@@ -135,6 +134,7 @@ const updateCategory = asyncHandler(async (req, res) => {
   );
 });
 
+// Delete category
 const deleteCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -151,15 +151,18 @@ const deleteCategory = asyncHandler(async (req, res) => {
     return ApiError.send(res, 404, "Category not found.");
   }
 
+  // Delete image file if it exists
   if (existingCategory.image) {
+    const imageFileName = existingCategory.image.replace("/uploads/", "");
     const imagePath = path.join(
       __dirname,
       "../../public/uploads",
-      existingCategory.image,
+      imageFileName,
     );
     deleteOldImage(imagePath);
   }
 
+  // Delete all products associated with the category
   if (existingCategory.products.length > 0) {
     await prisma.product.deleteMany({
       where: { categoryid: id },

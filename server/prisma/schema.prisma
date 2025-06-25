@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id         String    @id @default(uuid())
+  id         String    @id @unique @default(uuid())
   name       String
   email      String    @unique
   password   String? // Hashed password
@@ -57,17 +57,30 @@ model Product {
 }
 
 model Order {
-  id         String        @id @default(uuid())
-  customer   User          @relation("CustomerOrders", fields: [customerid], references: [id])
+  id         String          @id @default(uuid())
+  customer   User            @relation("CustomerOrders", fields: [customerid], references: [id])
   customerid String
   total      Decimal
-  status     OrderStatus? @default(Pending)
-  payment    PaymentStatus? @default(Un_Paid)
-  date       DateTime      @default(now())
+  status     OrderStatus?    @default(Pending)
+  payment    PaymentStatus?  @default(Pending)
+  date       DateTime        @default(now())
   duedate    DateTime?
   createdby  String
-  creator    User          @relation("CreatedOrders", fields: [createdby], references: [id])
+  creator    User            @relation("CreatedOrders", fields: [createdby], references: [id])
   items      OrderItem[]
+  shippingId String
+  shipping   ShippingAddress @relation(fields: [shippingId], references: [id])
+}
+
+model ShippingAddress {
+  id        String  @id @default(uuid())
+  firstName String
+  lastName  String
+  email     String
+  address   String
+  city      String
+  zip       String
+  orders    Order[]
 }
 
 model OrderItem {
@@ -99,13 +112,14 @@ enum ProductStatus {
 enum OrderStatus {
   Pending
   Processing
-  Completed
+  Delivered
   Cancelled
   Shipped
 }
 
 enum PaymentStatus {
-  Un_Paid
+  Processing
+  Cancelled
   Paid
   Pending
   Refunded

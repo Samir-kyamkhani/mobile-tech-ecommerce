@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff, Mail, Lock, ShoppingBag, ArrowRight } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../../../redux/slices/authSlice";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    rememberMe: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.auth);
+  console.log();
+  
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (user?.role === "Admin" && location.pathname !== "/dashboard") {
+      navigate("/dashboard");
+    } else if (user && location.pathname !== "/") {
+      navigate("/");
+    }
+  }, [user, navigate, location.pathname]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -21,11 +39,14 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      await dispatch(login(formData));
+      // navigation handled in useEffect
+    } catch (err) {
+      console.error("Login failed", err);
+    } finally {
       setIsLoading(false);
-      console.log("Login attempt:", formData);
-    }, 1500);
+    }
   };
 
   return (
@@ -47,7 +68,7 @@ export default function LoginPage() {
         {/* Login Form */}
         <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
+            {/* Email */}
             <div className="space-y-2">
               <label
                 htmlFor="email"
@@ -70,7 +91,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Password Field */}
+            {/* Password */}
             <div className="space-y-2">
               <label
                 htmlFor="password"
@@ -104,27 +125,17 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
+            {/* Forgot password
             <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="rememberMe"
-                  checked={formData.rememberMe}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-              </label>
               <button
                 type="button"
                 className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
               >
                 Forgot password?
               </button>
-            </div>
+            </div> */}
 
-            {/* Sign In Button */}
+            {/* Sign In */}
             <button
               type="submit"
               disabled={isLoading}

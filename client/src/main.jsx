@@ -21,6 +21,11 @@ import CheckoutPage from "./landing pages/pages/CheckoutPage.jsx";
 import SupportPage from "./landing pages/pages/sUPPORTpAGE.JSX";
 import LoginPage from "./landing pages/pages/auth/LoginPage.jsx";
 import UserProfilePage from "./landing pages/pages/UserProfilePage.jsx";
+import { Provider } from "react-redux";
+import { store } from "./redux/store.js";
+import ProtectedRoute from "./layouts/ProtectedRoute.jsx";
+import { ToastContainer } from "react-toastify";
+import ResponsiveToastContainer from "./layouts/ResponsiveToastContainer.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -32,23 +37,29 @@ const router = createBrowserRouter(
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="support" element={<SupportPage />} />
         <Route path="login" element={<LoginPage />} />
-        <Route path="profile" element={<UserProfilePage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="profile" element={<UserProfilePage />} />
+        </Route>
       </Route>
 
-      <Route element={<DashboardLayout />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/categories" element={<CategoriesPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/customers" element={<CustomersPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/orders" element={<OrdersPage />} />
+      {/* Protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="customers" element={<CustomersPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="orders" element={<OrdersPage />} />
+        </Route>
       </Route>
     </>
   )
 );
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  <Provider store={store}>
+    <ResponsiveToastContainer/>
     <RouterProvider router={router} />
-  </StrictMode>
+  </Provider>
 );

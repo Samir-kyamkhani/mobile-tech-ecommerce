@@ -1,11 +1,73 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ShoppingCart, Clock, CheckCircle, XCircle } from "lucide-react";
-import { orders as initialOrders } from "../../";
-
-// Replace this with actual data source or keep as fallback dummy
+import { useDispatch, useSelector } from "react-redux";
+import { getAllOrders, updateOrder } from "../../redux/slices/orderSlice";
 
 const OrdersPage = () => {
-  const [orders, setOrders] = useState(initialOrders);
+  const dispatch = useDispatch();
+  const orderState = useSelector((state) => state.order);
+  const orders = orderState?.orders || [];
+
+  const [localOrders, setLocalOrders] = useState([]);
+
+  useEffect(() => {
+    dispatch(getAllOrders());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const formatted = orders.map((order) => {
+      const product = order.items?.[0]?.product || {};
+      const customer = order.customer || {};
+      const itemCount = order.items?.length || 0;
+
+      return {
+        id: order.id,
+        productImg: product.image || null,
+        productName: product.name || "N/A",
+        customer: customer.name || "N/A",
+        email: customer.email || "N/A",
+        contact: customer.phone || "N/A",
+        total: order.total || "0",
+        status: order.status || "Pending",
+        payment: order.payment || "Pending",
+        date: order.date ? new Date(order.date).toLocaleDateString() : "N/A",
+        dueDate: order.duedate
+          ? new Date(order.duedate).toLocaleDateString()
+          : "N/A",
+        items: itemCount,
+      };
+    });
+
+    setLocalOrders(formatted);
+  }, [orders]);
+
+  const handleStatusChange = (id, newStatus) => {
+    setLocalOrders((prev) =>
+      prev.map((order) =>
+        order.id === id ? { ...order, status: newStatus } : order
+      )
+    );
+
+    dispatch(updateOrder({ id, updatedData: { status: newStatus } })).then(
+      () => {
+        dispatch(getAllOrders());
+      }
+    );
+  };
+
+  const handlePaymentChange = (id, newPayment) => {
+    setLocalOrders((prev) =>
+      prev.map((order) =>
+        order.id === id ? { ...order, payment: newPayment } : order
+      )
+    );
+
+    dispatch(updateOrder({ id, updatedData: { payment: newPayment } })).then(
+      () => {
+        dispatch(getAllOrders());
+      }
+    );
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -31,7 +93,6 @@ const OrdersPage = () => {
       case "Pending":
         return "bg-yellow-100 text-yellow-800";
       case "Cancelled":
-        return "bg-red-100 text-red-800";
       case "Refunded":
         return "bg-red-100 text-red-800";
       default:
@@ -39,25 +100,8 @@ const OrdersPage = () => {
     }
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === id ? { ...order, status: newStatus } : order
-      )
-    );
-  };
-
-  const handlePaymentChange = (id, newPayment) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === id ? { ...order, payment: newPayment } : order
-      )
-    );
-  };
-
   return (
     <div className="p-4 space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
@@ -67,32 +111,31 @@ const OrdersPage = () => {
         </div>
       </div>
 
-      {/* Order Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <StatCard
           icon={<ShoppingCart className="w-6 h-6 text-blue-600" />}
           label="Total Orders"
-          value={orders.length}
+          value={localOrders.length}
         />
         <StatCard
           icon={<Clock className="w-6 h-6 text-yellow-600" />}
           label="Pending"
-          value={orders.filter((o) => o.status === "Pending").length}
+          value={localOrders.filter((o) => o.status === "Pending").length}
         />
         <StatCard
           icon={<CheckCircle className="w-6 h-6 text-green-600" />}
           label="Delivered"
-          value={orders.filter((o) => o.status === "Delivered").length}
+          value={localOrders.filter((o) => o.status === "Delivered").length}
         />
         <StatCard
           icon={<XCircle className="w-6 h-6 text-red-600" />}
           label="Cancelled"
-          value={orders.filter((o) => o.status === "Cancelled").length}
+          value={localOrders.filter((o) => o.status === "Cancelled").length}
         />
       </div>
 
-      {/* Filters */}
-      <div className="bg-white p-4  rounded-lg shadow border border-gray-200">
+      {/* Filters (optional: not functional) */}
+      <div className="bg-white p-4 rounded-lg shadow border border-gray-200">
         <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
           <input
             type="text"
@@ -114,7 +157,7 @@ const OrdersPage = () => {
         </div>
       </div>
 
-      {/* Orders Table */}
+      {/* Desktop Table */}
       <div className="hidden md:block bg-white shadow rounded-lg border border-gray-200">
         <div className="px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">Orders</h3>
@@ -145,7 +188,7 @@ const OrdersPage = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {orders.length === 0 ? (
+              {localOrders.length === 0 ? (
                 <tr>
                   <td
                     colSpan={10}
@@ -155,62 +198,40 @@ const OrdersPage = () => {
                   </td>
                 </tr>
               ) : (
-                orders.map((order) => (
+                localOrders.map((order) => (
                   <tr key={order.id}>
-                    {/* Product Image */}
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
                       <div className="flex items-center">
-                        {order.productImg && (
+                        {order.productImg ? (
                           <img
-                            src={order.productImg}
-                            alt={`${order.name} image`}
+                            src={`${
+                              import.meta.env.VITE_API_BASE_URL_For_Image
+                            }${order.productImg}`}
+                            alt={order.productName}
                             className="w-10 h-10 rounded-full object-cover mr-3"
                             onError={(e) => {
-                              e.currentTarget.onerror = null;
                               e.currentTarget.style.display = "none";
-                              if (e.currentTarget.nextSibling) {
-                                e.currentTarget.nextSibling.style.display =
-                                  "flex";
-                              }
                             }}
                           />
+                        ) : (
+                          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-sm text-gray-500">
+                            N/A
+                          </div>
                         )}
-                        <div
-                          className="w-10 h-10 rounded-full bg-gray-200 mr-3 items-center justify-center text-sm text-gray-500"
-                          style={{
-                            display: order.productImg ? "none" : "flex",
-                          }}
-                        >
-                          N/A
-                        </div>
                       </div>
                     </td>
-
-                    {/* Product Name */}
                     <td className="px-6 py-4 text-sm">{order.productName}</td>
-
-                    {/* Order ID */}
                     <td className="px-6 py-4 text-sm">{order.id}</td>
-
-                    {/* Customer Info */}
                     <td className="px-6 py-4 text-sm">
                       <div className="font-medium text-gray-900">
                         {order.customer}
                       </div>
+                      <div className="text-gray-500">Email: {order.email}</div>
                       <div className="text-gray-500">
-                        <span className="font-medium">Email:</span>{" "}
-                        {order.email}
-                      </div>
-                      <div className="text-gray-500">
-                        <span className="font-medium">Contact Number:</span>{" "}
-                        {order.contact}
+                        Contact: {order.contact}
                       </div>
                     </td>
-
-                    {/* Total */}
                     <td className="px-6 py-4 text-sm">₹{order.total}</td>
-
-                    {/* Status */}
                     <td className="px-6 py-4">
                       <select
                         value={order.status}
@@ -227,15 +248,13 @@ const OrdersPage = () => {
                           "Shipped",
                           "Delivered",
                           "Cancelled",
-                        ].map((status) => (
-                          <option key={status} value={status}>
-                            {status}
+                        ].map((s) => (
+                          <option key={s} value={s}>
+                            {s}
                           </option>
                         ))}
                       </select>
                     </td>
-
-                    {/* Payment */}
                     <td className="px-6 py-4">
                       <select
                         value={order.payment}
@@ -255,18 +274,12 @@ const OrdersPage = () => {
                         )}
                       </select>
                     </td>
-
-                    {/* Date */}
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {order.date}
                     </td>
-
-                    {/* Due Date */}
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {order.dueDate}
                     </td>
-
-                    {/* Items */}
                     <td className="px-6 py-4 text-sm">{order.items}</td>
                   </tr>
                 ))
@@ -276,110 +289,125 @@ const OrdersPage = () => {
         </div>
       </div>
 
-      {/* Mobile View */}
-      <div className="block md:hidden space-y-4">
-        {orders.length === 0 ? (
-          <div>
-            <p colSpan={10} className="px-6 py-4 text-center text-gray-500">
-              No orders found.
+      {/* Recent Orders - Mobile Card View */}
+      <div className="block md:hidden space-y-4 bg-white shadow rounded-lg border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 className="text-lg font-medium text-gray-900">All Orders</h3>
+          <div className="flex space-x-3"></div>
+        </div>
+        <div className="block md:hidden space-y-4 px-3 ">
+          {localOrders.length === 0 ? (
+            <p className="px-6 py-4 text-center text-gray-500">
+              No recent orders found.
             </p>
-          </div>
-        ) : (
-          orders.map((order) => (
-            <div
-              key={order.id}
-              className="bg-white mb-4 rounded-lg shadow p-4 border border-gray-200"
-            >
-              {/* Product Image */}
-              <div className=" py-4 whitespace-nowrap">
-                <div className="flex items-center">
-                  {order.productImg && (
-                    <img
-                      src={order.productImg}
-                      alt={`${order.name} image`}
-                      className="w-14 h-14 rounded-full object-cover mr-3"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null;
-                        e.currentTarget.style.display = "none";
-                        if (e.currentTarget.nextSibling) {
-                          e.currentTarget.nextSibling.style.display = "flex";
-                        }
-                      }}
-                    />
-                  )}
-                  <div
-                    className="w-14 h-14 rounded-full bg-gray-200 mr-3 items-center justify-center text-sm text-gray-500"
-                    style={{ display: order.productImg ? "none" : "flex" }}
-                  >
-                    N/A
+          ) : (
+            localOrders.map((order) => (
+              <div
+                key={order.id}
+                className="bg-white mb-3  rounded-lg shadow p-4 border border-gray-200"
+              >
+                {/* Product Image */}
+                <div className="py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    {order.productImg ? (
+                      <img
+                        src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${
+                          order.productImg
+                        }`}
+                        alt={`${order.productName} image`}
+                        className="w-14 h-14 rounded-full object-cover mr-3"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.style.display = "none";
+                          if (e.currentTarget.nextSibling) {
+                            e.currentTarget.nextSibling.style.display = "flex";
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gray-200 mr-3 items-center justify-center text-sm text-gray-500 flex">
+                        N/A
+                      </div>
+                    )}
                   </div>
                 </div>
+
+                <div className="flex justify-between items-center mb-2">
+                  <h4 className="text-sm font-semibold text-gray-900">
+                    {order.customer}
+                  </h4>
+                  <select
+                    value={order.status}
+                    onChange={(e) =>
+                      handleStatusChange(order.id, e.target.value)
+                    }
+                    className={`text-xs font-semibold rounded-full px-2 py-1 ${getStatusColor(
+                      order.status
+                    )} focus:outline-none`}
+                  >
+                    {[
+                      "Pending",
+                      "Processing",
+                      "Shipped",
+                      "Delivered",
+                      "Cancelled",
+                    ].map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <p className="text-sm text-gray-500 mb-1">
+                  <strong>Order ID:</strong> {order.id}
+                </p>
+
+                <p className="text-sm text-gray-500 mb-1">
+                  <strong>Email:</strong> {order.email}
+                  <br />
+                  <strong>Contact Number:</strong> {order.contact}
+                </p>
+
+                <p className="text-sm text-gray-500 mb-1">
+                  <strong>Total:</strong> ₹{order.total}
+                </p>
+
+                <p className="text-sm text-gray-500 mb-1">
+                  <strong>Payment:</strong>{" "}
+                  <select
+                    value={order.payment}
+                    onChange={(e) =>
+                      handlePaymentChange(order.id, e.target.value)
+                    }
+                    className={`text-xs font-semibold rounded-full px-2 py-1 ${getPaymentColor(
+                      order.payment
+                    )} focus:outline-none`}
+                  >
+                    {["Paid", "Pending", "Cancelled", "Refunded"].map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
+                </p>
+
+                <p className="text-sm text-gray-500 mb-1">
+                  <strong>Date:</strong> {order.date}
+                </p>
+
+                <p className="text-sm text-gray-500 mb-1">
+                  <strong>Due Date:</strong> {order.dueDate}
+                </p>
+
+                <p className="text-sm text-gray-500">
+                  <strong>Items:</strong> {order.items}{" "}
+                  {order.items === 1 ? "item" : "items"}
+                </p>
               </div>
-              <div className="flex justify-between items-center mb-2">
-                <h4 className="text-sm font-semibold text-gray-900">
-                  {order.customer}
-                </h4>
-                <select
-                  value={order.status}
-                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                  className={`text-xs font-semibold rounded-full px-2 py-1 ${getStatusColor(
-                    order.status
-                  )} focus:outline-none`}
-                >
-                  {[
-                    "Pending",
-                    "Processing",
-                    "Shipped",
-                    "Delivered",
-                    "Cancelled",
-                  ].map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <p className="text-sm text-gray-500 mb-1">
-                <strong>Order ID:</strong> {order.id}
-              </p>
-              <p className="text-sm text-gray-500 mb-1">
-                <strong>Email:</strong> {order.email}
-                <br />
-                <strong>Contact Number:</strong> {order.contact}
-              </p>
-              <p className="text-sm text-gray-500 mb-1">
-                <strong>Total:</strong> ₹{order.total}
-              </p>
-              <p className="text-sm text-gray-500 mb-1">
-                <strong>Payment:</strong>{" "}
-                <select
-                  value={order.payment}
-                  onChange={(e) =>
-                    handlePaymentChange(order.id, e.target.value)
-                  }
-                  className={`text-xs font-semibold rounded-full px-2 py-1 ${getPaymentColor(
-                    order.payment
-                  )} focus:outline-none`}
-                >
-                  {["Paid", "Pending", "Cancelled", "Refunded"].map((p) => (
-                    <option key={p} value={p}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
-              </p>
-              <p className="text-sm text-gray-500 mb-1">
-                <strong>Date:</strong> {order.date}
-              </p>
-              <p className="text-sm text-gray-500 mb-1">
-                <strong>Due Date:</strong> {order.dueDate}
-              </p>
-              <p className="text-sm text-gray-500">
-                <strong>Items:</strong> {order.items}
-              </p>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

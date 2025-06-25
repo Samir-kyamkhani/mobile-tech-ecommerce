@@ -17,7 +17,7 @@ router.post(
   upload.single("image"),
   createCategory,
 );
-router.get("/get-categories", authMiddleware, getAllCategories);
+router.get("/get-categories",  getAllCategories);
 router.get("/get-category/:id", authMiddleware, getCategoryById);
 router.put(
   "/update-category/:id",

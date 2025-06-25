@@ -4,14 +4,11 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import validator from "validator";
 
 import {
-  generateAccessToken,
   hashPassword,
-  cookieOptions,
   formattedJoinDate,
 } from "../utils/utils.js";
 import prisma from "../db/db.js";
 
-// ✅ CREATE CUSTOMER (Admin only)
 const createCustomer = asyncHandler(async (req, res) => {
   const { name, location, status, joinDate, email, phone, password } = req.body;
   const { role } = req.user;
@@ -70,21 +67,15 @@ const createCustomer = asyncHandler(async (req, res) => {
 
   const newUser = await prisma.user.create({
     data: {
-      name,
-      email,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
-      phone,
+      phone: phone.trim(),
       location,
       status,
       joinDate: joinDate ? new Date(joinDate) : undefined, // Converts to ISO Date
     },
   });
-
-  const accessToken = generateAccessToken(
-    newUser.id,
-    newUser.email,
-    newUser.role,
-  );
 
   const { password: _, ...userSafe } = newUser;
 
@@ -95,15 +86,11 @@ const createCustomer = asyncHandler(async (req, res) => {
     joinDate: formattedDate,
   };
 
-  return res
-    .status(201)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .json(
-      new ApiResponse(201, "Customer created successfully.", {
-        user: userSafeWithFormattedDate,
-        accessToken,
-      }),
-    );
+  return res.status(201).json(
+    new ApiResponse(201, "Customer created successfully.", {
+      user: userSafeWithFormattedDate,
+    }),
+  );
 });
 
 const getAllCustomers = asyncHandler(async (req, res) => {
@@ -164,15 +151,25 @@ const updateCustomer = asyncHandler(async (req, res) => {
     return ApiError.send(res, 404, "Customer not found.");
   }
 
+  const updateData = {};
+
+  if (name) updateData.name = name.trim();
+  if (email) updateData.email = email.trim().toLowerCase();
+  if (phone) updateData.phone = phone.trim();
+  if (location) updateData.location = location.trim();
+  if (status) updateData.status = status.trim();
+
+  if (Object.keys(updateData).length === 0) {
+    return ApiError.send(
+      res,
+      400,
+      "Please provide at least one field to update.",
+    );
+  }
+
   const updatedCustomer = await prisma.user.update({
     where: { id },
-    data: {
-      name,
-      email,
-      phone,
-      location,
-      status,
-    },
+    data: updateData,
   });
 
   return res
@@ -196,6 +193,30 @@ const deleteCustomer = asyncHandler(async (req, res) => {
     return ApiError.send(res, 404, "Customer not found.");
   }
 
+  // Step 1: Delete customer orders and their related order items
+  const customerOrders = await prisma.order.findMany({
+    where: { customerid: id },
+    select: { id: true },
+  });
+
+  const orderIds = customerOrders.map((order) => order.id);
+
+  if (orderIds.length > 0) {
+    await prisma.orderItem.deleteMany({
+      where: { orderid: { in: orderIds } },
+    });
+
+    await prisma.order.deleteMany({
+      where: { id: { in: orderIds } },
+    });
+  }
+
+  // Step 2: Delete records created by the user (Category, Product, Order)
+  await prisma.category.deleteMany({ where: { createdby: id } });
+  await prisma.product.deleteMany({ where: { createdby: id } });
+  await prisma.order.deleteMany({ where: { createdby: id } });
+
+  // Step 3: Finally, delete the user
   await prisma.user.delete({ where: { id } });
 
   return res

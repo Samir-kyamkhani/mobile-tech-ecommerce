@@ -13,33 +13,47 @@ const __dirname = path.dirname(__filename);
 const createProduct = asyncHandler(async (req, res) => {
   const { name, categoryid, price, stock, status } = req.body;
   const { id: createdby, role } = req.user;
-  const image = req.file?.filename;
+  const image = req.file ? `/uploads/${req.file.filename}` : null;
 
   if (role !== "Admin") {
     return ApiError.send(res, 403, "Only admins can create a product.");
   }
 
   if (!name || !categoryid || !price || !stock || !status || !createdby) {
-    return ApiError.send(res, 400, "All required fields must be provided");
+    return ApiError.send(res, 400, "All required fields must be provided.");
   }
 
   if (!image) {
     return ApiError.send(res, 403, "Please Upload Product Image.");
   }
+
+  // Ensure price is numeric
+  const numericPrice = parseFloat(
+    typeof price === "string" ? price.replace(/[^0-9.]/g, "") : price,
+  );
+  if (isNaN(numericPrice)) {
+    return ApiError.send(res, 400, "Invalid price format.");
+  }
+
+  const numericStock = parseInt(stock);
+  if (isNaN(numericStock)) {
+    return ApiError.send(res, 400, "Invalid stock value.");
+  }
+
   const category = await prisma.category.findUnique({
     where: { id: categoryid },
   });
 
   if (!category) {
-    return ApiError.send(res, 404, "Category not found");
+    return ApiError.send(res, 404, "Category not found.");
   }
 
   const product = await prisma.product.create({
     data: {
       name: name.trim(),
       categoryid,
-      price: parseFloat(price),
-      stock: parseInt(stock),
+      price: numericPrice,
+      stock: numericStock,
       status,
       image,
       createdby,
@@ -54,54 +68,39 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 const getAllProducts = asyncHandler(async (req, res) => {
-  if (req.user?.role !== "Admin") {
-    return ApiError.send(res, 403, "Only admins can fatched products.");
-  }
-
   const products = await prisma.product.findMany({
-    include: {
-      category: true,
-    },
-    orderBy: {
-      name: "asc",
-    },
+    include: { category: true },
+    orderBy: { name: "asc" },
   });
 
-  if (!products) {
-    return ApiError.send(res, 404, "Products not found");
+  if (!products || products.length === 0) {
+    return ApiError.send(res, 404, "No products found.");
   }
 
-  return res.status(200).json(
-    new ApiResponse(200, "Products Fatched successfully.", {
-      products,
-    }),
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Products fetched successfully.", { products }));
 });
 
 const getProductById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   if (req.user?.role !== "Admin") {
-    return ApiError.send(res, 403, "Only admins can fatched products.");
+    return ApiError.send(res, 403, "Only admins can fetch products.");
   }
+
   const product = await prisma.product.findUnique({
     where: { id },
-    include: {
-      category: true,
-      orderItems: true,
-      creator: true,
-    },
+    include: { category: true, orderItems: true, creator: true },
   });
 
   if (!product) {
-    return ApiError.send(res, 404, "Product not found");
+    return ApiError.send(res, 404, "Product not found.");
   }
 
-  return res.status(200).json(
-    new ApiResponse(200, "Product Fatched Successfully.", {
-      product,
-    }),
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Product fetched successfully.", { product }));
 });
 
 const updateProduct = asyncHandler(async (req, res) => {
@@ -114,50 +113,65 @@ const updateProduct = asyncHandler(async (req, res) => {
 
   const existingProduct = await prisma.product.findUnique({ where: { id } });
   if (!existingProduct) {
-    return ApiError.send(res, 404, "Product not found");
+    return ApiError.send(res, 404, "Product not found.");
   }
 
   if (categoryid) {
-    const categoryExist = await prisma.category.findUnique({
+    const categoryExists = await prisma.category.findUnique({
       where: { id: categoryid },
     });
-    if (!categoryExist) {
-      return ApiError.send(res, 404, "Category not found");
+    if (!categoryExists) {
+      return ApiError.send(res, 404, "Category not found.");
     }
   }
 
   let newImageFilename = existingProduct.image;
 
-  if (req.file?.filename) {
+  if (req.file) {
+    // Delete the old image if exists
     if (existingProduct.image) {
+      const oldImageFileName = existingProduct.image.replace("/uploads/", "");
       const oldImagePath = path.join(
         __dirname,
         "../../public/uploads",
-        existingProduct.image,
+        oldImageFileName,
       );
       deleteOldImage(oldImagePath);
     }
 
-    newImageFilename = req.file.filename;
+    // Store new image path
+    newImageFilename = `/uploads/${req.file.filename}`;
+  }
+
+  const numericPrice =
+    price !== undefined ? parseFloat(price) : existingProduct.price;
+  if (price !== undefined && (isNaN(numericPrice) || numericPrice < 0)) {
+    return ApiError.send(res, 400, "Invalid price format.");
+  }
+
+  const numericStock =
+    stock !== undefined ? parseInt(stock, 10) : existingProduct.stock;
+  if (stock !== undefined && (isNaN(numericStock) || numericStock < 0)) {
+    return ApiError.send(res, 400, "Invalid stock value.");
   }
 
   const updatedProduct = await prisma.product.update({
     where: { id },
     data: {
-      name: name?.trim() || existingProduct.name,
+      name: name?.trim() ?? existingProduct.name,
       categoryid: categoryid ?? existingProduct.categoryid,
-      price: price !== undefined ? parseFloat(price) : existingProduct.price,
-      stock: stock !== undefined ? parseInt(stock) : existingProduct.stock,
+      price: numericPrice,
+      stock: numericStock,
       status: status ?? existingProduct.status,
       image: newImageFilename,
     },
   });
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, "Product updated successfully", { updatedProduct }),
-    );
+  return res.status(200).json(
+    new ApiResponse(200, "Product updated successfully.", {
+      product: updatedProduct,
+    }),
+  );
 });
 
 const deleteProduct = asyncHandler(async (req, res) => {
@@ -168,27 +182,32 @@ const deleteProduct = asyncHandler(async (req, res) => {
   }
 
   const product = await prisma.product.findUnique({ where: { id } });
-
   if (!product) {
-    return ApiError.send(res, 404, "Product not found");
+    return ApiError.send(res, 404, "Product not found.");
   }
 
-  // Delete image file if exists
+  // Delete all related OrderItems first to avoid foreign key constraint violation
+  await prisma.orderItem.deleteMany({
+    where: { productid: id },
+  });
+
+  // Delete product image from disk if it exists
   if (product.image) {
+    const imageFileName = product.image.replace("/uploads/", "");
     const imagePath = path.join(
       __dirname,
       "../../public/uploads",
-      product.image,
+      imageFileName,
     );
     deleteOldImage(imagePath);
   }
 
-  // Delete product from database
+  // Delete the product itself
   await prisma.product.delete({ where: { id } });
 
   return res
     .status(200)
-    .json(new ApiResponse(200, "Product deleted successfully", null));
+    .json(new ApiResponse(200, "Product deleted successfully."));
 });
 
 export {

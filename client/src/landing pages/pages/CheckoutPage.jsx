@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Truck, Shield, Star, Minus, Plus, X, CheckCircle } from "lucide-react";
+import { createOrder, getAllOrders } from "../../redux/slices/orderSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom"; // [NEW]
 
 const CheckoutPage = () => {
+  const { user } = useSelector((state) => state.auth);
+
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem("cart");
     if (savedCart) {
@@ -14,6 +19,9 @@ const CheckoutPage = () => {
     }
     return [];
   });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); 
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -56,23 +64,33 @@ const CheckoutPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!user) {
+      navigate("/login");
+    }
+
     setIsProcessing(true);
 
-    // Simulate order processing delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsProcessing(false);
-
-    setOrderDetails({
+    const order = {
       items: cart,
       shipping: shippingInfo,
       total: getTotalPrice(),
-    });
+      paymentMethod: "Cash on Delivery",
+    };
 
-    setOrderPlaced(true);
+    try {
+      dispatch(createOrder(order));
+      dispatch(getAllOrders());
 
-    setCart([]);
-    localStorage.removeItem("cart");
+      setOrderDetails(order);
+      setOrderPlaced(true);
+      setCart([]);
+      localStorage.removeItem("cart");
+    } catch (error) {
+      console.error("Error placing order:", error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const SuccessPopup = ({ details, onClose }) => (
@@ -158,6 +176,7 @@ const CheckoutPage = () => {
     </div>
   );
 
+  const firstProductId = orderDetails?.items?.[0]?.id;
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
@@ -171,50 +190,69 @@ const CheckoutPage = () => {
       </div>
 
       {orderPlaced ? (
-        <div className="max-w-3xl mx-auto my-12 p-6 bg-white/90 rounded-2xl shadow-xl border border-gray-200">
-          <h2 className="text-3xl font-bold text-green-700 mb-6 flex items-center space-x-3">
-            <CheckCircle className="w-8 h-8" />
-            <span>Thank you for your order!</span>
-          </h2>
+        <div className="flex items-center justify-center">
+          <div className="max-w-3xl  my-12 mx-4 p-6 bg-white/90 rounded-2xl shadow-xl border border-gray-200">
+            <h2 className="text-3xl font-bold text-green-700 mb-6 flex items-center space-x-3">
+              <CheckCircle className="w-8 h-8" />
+              <span>Thank you for your order!</span>
+            </h2>
 
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold mb-3">Order Summary</h3>
-            <ul className="divide-y divide-gray-200 max-h-64 overflow-y-auto">
-              {orderDetails.items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex justify-between py-3 text-gray-800"
-                >
-                  <div>
-                    {item.name} × {item.quantity}
-                  </div>
-                  <div>₹{item.price * item.quantity}</div>
-                </li>
-              ))}
-            </ul>
-            <div className="text-right font-semibold text-lg mt-4">
-              Total: ₹{orderDetails.total}
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold mb-3">Order Summary</h3>
+              <ul className="divide-y divide-gray-200 max-h-64 overflow-y-auto">
+                {orderDetails.items.map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex justify-between py-3 text-gray-800"
+                  >
+                    <div>
+                      {item.name} × {item.quantity}
+                    </div>
+                    <div>₹{item.price * item.quantity}</div>
+                  </li>
+                ))}
+              </ul>
+              <div className="text-right font-semibold text-lg mt-4">
+                Total: ₹{orderDetails.total}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold mb-3">
+                Shipping Information
+              </h3>
+              <p className="text-gray-700">
+                {orderDetails.shipping.firstName}{" "}
+                {orderDetails.shipping.lastName} <br />
+                {orderDetails.shipping.address}, {orderDetails.shipping.city}{" "}
+                <br />
+                ZIP: {orderDetails.shipping.zip} <br />
+                Email: {orderDetails.shipping.email}
+              </p>
+            </div>
+
+            <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-4 mt-6 w-full">
+              <Link
+                to="/profile"
+                state={{ tab: "orders" }}
+                className={`px-6 py-3 rounded-xl font-semibold w-full md:w-1/2 transition text-center ${
+                  firstProductId
+                    ? "bg-green-600 text-white hover:bg-green-700"
+                    : "bg-gray-400 text-gray-700 cursor-not-allowed pointer-events-none"
+                }`}
+              >
+                View Ordered Product
+              </Link>
+
+              <Link
+                to="/"
+                onClick={() => setOrderPlaced(false)}
+                className="px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition w-full md:w-1/2 text-center"
+              >
+                Back to Shopping
+              </Link>
             </div>
           </div>
-
-          <div>
-            <h3 className="text-xl font-semibold mb-3">Shipping Information</h3>
-            <p className="text-gray-700">
-              {orderDetails.shipping.firstName} {orderDetails.shipping.lastName}{" "}
-              <br />
-              {orderDetails.shipping.address}, {orderDetails.shipping.city}{" "}
-              <br />
-              ZIP: {orderDetails.shipping.zip} <br />
-              Email: {orderDetails.shipping.email}
-            </p>
-          </div>
-
-          <button
-            onClick={() => setOrderPlaced(false)}
-            className="mt-8 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
-          >
-            Back to Shopping
-          </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit}>
@@ -238,6 +276,7 @@ const CheckoutPage = () => {
                         name: "firstName",
                         placeholder: "First Name",
                         type: "text",
+                        defaultValue: user?.name || "",
                       },
                       {
                         name: "lastName",
@@ -249,12 +288,14 @@ const CheckoutPage = () => {
                         placeholder: "Email Address",
                         type: "email",
                         colSpan: true,
+                        defaultValue: user?.email || "",
                       },
                       {
                         name: "address",
                         placeholder: "Street Address",
                         type: "text",
                         colSpan: true,
+                        defaultValue: user?.location || "",
                       },
                       { name: "city", placeholder: "City", type: "text" },
                       {
@@ -262,143 +303,140 @@ const CheckoutPage = () => {
                         placeholder: "ZIP/Postal Code",
                         type: "text",
                       },
-                    ].map(({ name, placeholder, type, colSpan }) => (
-                      <input
-                        key={name}
-                        type={type}
-                        name={name}
-                        placeholder={placeholder}
-                        value={shippingInfo[name]}
-                        onChange={handleShippingChange}
-                        className={`rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                          colSpan ? "sm:col-span-2" : ""
-                        }`}
-                        required
-                      />
-                    ))}
+                    ].map(
+                      ({ name, placeholder, type, colSpan, defaultValue }) => (
+                        <input
+                          key={name}
+                          type={type}
+                          name={name}
+                          placeholder={placeholder}
+                          value={shippingInfo[name] || defaultValue}
+                          onChange={handleShippingChange}
+                          className={`rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                            colSpan ? "sm:col-span-2" : ""
+                          }`}
+                          required
+                        />
+                      )
+                    )}
                   </div>
                 </div>
 
                 <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 lg:p-8">
                   <div className="flex items-center space-x-3 mb-6">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100">
-                      <Shield className="w-5 h-5 text-blue-600" />
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-green-100">
+                      <Shield className="w-5 h-5 text-green-600" />
                     </div>
                     <h3 className="text-xl lg:text-2xl font-bold text-gray-900">
-                      Review Order
+                      Payment Method
                     </h3>
                   </div>
 
-                  {cart.length === 0 ? (
-                    <p>Your cart is empty.</p>
-                  ) : (
-                    <>
-                      <ul className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
-                        {cart.map((item) => (
-                          <li key={item.id} className="flex items-center py-4">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-16 h-16 object-cover rounded mr-4"
-                            />
-                            <div className="flex-1">
-                              <h4 className="font-semibold">{item.name}</h4>
-                              <div className="flex items-center text-sm text-yellow-500 mb-1">
-                                {[...Array(Math.floor(item.rating))].map(
-                                  (_, i) => (
-                                    <Star key={i} className="w-4 h-4" />
-                                  )
-                                )}
-                                <span className="text-gray-600 ml-2">
-                                  ({item.reviews})
-                                </span>
-                              </div>
-                              <p>
-                                Price: ₹{item.price} × {item.quantity} = ₹
-                                {item.price * item.quantity}
-                              </p>
-                              <div className="flex items-center space-x-2 mt-2">
-                                <button
-                                  type="button"
-                                  onClick={() => updateQuantity(item.id, -1)}
-                                  disabled={item.quantity <= 1}
-                                  className="p-1 rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
-                                >
-                                  <Minus className="w-4 h-4" />
-                                </button>
-                                <span>{item.quantity}</span>
-                                <button
-                                  type="button"
-                                  onClick={() => updateQuantity(item.id, +1)}
-                                  className="p-1 rounded border border-gray-300 hover:bg-gray-100"
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => removeItem(item.id)}
-                                  className="p-1 rounded border border-red-400 text-red-600 hover:bg-red-100"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                      <div className="mt-6 text-right text-xl font-semibold">
-                        Total: ₹{getTotalPrice()}
-                      </div>
-                    </>
-                  )}
+                  <div>
+                    <p className="mb-2 font-semibold text-gray-800">
+                      Cash on Delivery
+                    </p>
+                    <p className="text-gray-600 text-sm max-w-md">
+                      Pay when you receive your items at your doorstep.
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {cart.length > 0 && (
-                <div className="lg:col-span-4 flex flex-col justify-between space-y-6">
-                  <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 lg:p-8">
-                    <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
-                    <ul className="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+              {/* Right Column - Cart Summary */}
+              <div className="lg:col-span-4">
+                <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 lg:p-8 sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto">
+                  <h2 className="text-2xl font-bold mb-6 text-gray-900">
+                    Order Summary
+                  </h2>
+
+                  {cart.length === 0 ? (
+                    <p className="text-gray-700">Your cart is empty.</p>
+                  ) : (
+                    <ul className="divide-y divide-gray-300 max-h-72 overflow-y-auto">
                       {cart.map((item) => (
                         <li
                           key={item.id}
-                          className="flex items-center py-3 justify-between"
+                          className="flex items-center justify-between py-4"
                         >
-                          <div>
-                            {item.name} × {item.quantity}
+                          <div className="flex items-center space-x-4">
+                            <img
+                              src={`${
+                                import.meta.env.VITE_API_BASE_URL_For_Image
+                              }${item.image}`}
+                              alt={item.name}
+                              className="w-16 h-16 rounded-lg object-cover"
+                            />
+                            <div className="min-w-0 flex flex-col">
+                              <span className="text-gray-900 font-semibold truncate max-w-[12rem] sm:max-w-[16rem] md:max-w-[20rem]">
+                                {item.name}
+                              </span>
+                              <span className="text-gray-500 text-sm">
+                                ₹{item.price} × {item.quantity}
+                              </span>
+                            </div>
                           </div>
-                          <div>₹{item.price * item.quantity}</div>
+
+                          <div className="flex items-center space-x-2">
+                            <button
+                              type="button"
+                              aria-label={`Decrease quantity of ${item.name}`}
+                              onClick={() => updateQuantity(item.id, -1)}
+                              className="p-1 rounded-md hover:bg-gray-200 transition"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <span
+                              aria-live="polite"
+                              aria-atomic="true"
+                              className="w-5 text-center"
+                            >
+                              {item.quantity}
+                            </span>
+                            <button
+                              type="button"
+                              aria-label={`Increase quantity of ${item.name}`}
+                              onClick={() => updateQuantity(item.id, 1)}
+                              className="p-1 rounded-md hover:bg-gray-200 transition"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label={`Remove ${item.name} from cart`}
+                              onClick={() => removeItem(item.id)}
+                              className="p-1 rounded-md hover:bg-red-100 transition"
+                            >
+                              <X className="w-4 h-4 text-red-600" />
+                            </button>
+                          </div>
                         </li>
                       ))}
                     </ul>
-                    <div className="mt-6 font-semibold text-right text-2xl">
-                      Total: ₹{getTotalPrice()}
-                    </div>
+                  )}
+
+                  <div className="mt-6 flex justify-between font-semibold text-lg text-gray-900 border-t border-gray-300 pt-4">
+                    <span>Total:</span>
+                    <span>₹{getTotalPrice()}</span>
                   </div>
 
                   <button
                     type="submit"
-                    disabled={isProcessing}
-                    className={`w-full py-3 rounded-xl text-white font-semibold transition ${
-                      isProcessing
-                        ? "bg-blue-300 cursor-not-allowed"
+                    disabled={cart.length === 0 || isProcessing}
+                    className={`mt-6 w-full py-3 rounded-xl text-white font-bold transition focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+                      cart.length === 0 || isProcessing
+                        ? "bg-gray-400 cursor-not-allowed"
                         : "bg-blue-600 hover:bg-blue-700"
                     }`}
+                    aria-disabled={cart.length === 0 || isProcessing}
                   >
                     {isProcessing ? "Processing..." : "Place Order"}
                   </button>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </form>
-      )}
-
-      {orderPlaced && orderDetails && (
-        <SuccessPopup
-          details={orderDetails}
-          onClose={() => setOrderPlaced(false)}
-        />
       )}
     </div>
   );

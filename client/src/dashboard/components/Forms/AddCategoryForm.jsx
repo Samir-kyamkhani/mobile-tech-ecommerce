@@ -15,20 +15,18 @@ export default function AddCategoryForm({
     name: categoryData?.name || "",
     sku: categoryData?.sku || "",
     description: categoryData?.description || "",
-    image: categoryData?.image || "",
+    image: categoryData?.image || null, // Can be a File or a string (URL)
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // If the user is typing the category name, auto-generate SKU
     if (name === "name") {
       const generatedSku = value
         .trim()
         .toLowerCase()
-        .replace(/\s+/g, "-") // Replace spaces with underscores
-        .slice(0, 15); // Limit SKU length
-
+        .replace(/\s+/g, "-")
+        .slice(0, 15);
       setForm((prev) => ({
         ...prev,
         [name]: value,
@@ -42,9 +40,27 @@ export default function AddCategoryForm({
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.value;
+    setForm((prevForm) => ({
+      ...prevForm,
+      image: file,
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(form);
+
+    const formData = new FormData();
+    formData.append("name", form.name);
+    formData.append("sku", form.sku);
+    formData.append("description", form.description);
+
+    if (form.image && typeof form.image !== "string") {
+      formData.append("image", form.image); // Only append if it's a File
+    }
+
+    onSubmit(formData);
     onClose();
   };
 
@@ -64,13 +80,17 @@ export default function AddCategoryForm({
           <button
             onClick={onClose}
             className="text-white hover:bg-white/20 rounded-full p-2 transition-colors"
+            aria-label="Close"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 space-y-6 overflow-y-auto flex flex-col flex-grow"
+        >
           <InputField
             label="Category Name"
             name="name"
@@ -85,7 +105,7 @@ export default function AddCategoryForm({
             name="sku"
             value={form.sku}
             onChange={handleChange}
-            placeholder="e.g., ELEC001"
+            placeholder="e.g., elec-001"
             icon={Tag}
           />
 
@@ -103,24 +123,23 @@ export default function AddCategoryForm({
             label="Category Image"
             name="image"
             value={form.image}
-            onChange={handleChange}
+            onChange={handleImageChange}
           />
-        </form>
 
-        {/* Footer */}
-        <div className="bg-gray-50 px-6 py-4 flex flex-col sm:flex-row gap-3 sm:justify-between">
-          <Button variant="close" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            type="submit"
-            onClick={handleSubmit}
-            leftIcon={<Plus className="h-4 w-4" />}
-          >
-            {isEdit ? "Update Category" : "Add Category"}
-          </Button>
-        </div>
+          {/* Footer Buttons */}
+          <div className="bg-gray-50 px-0 py-4 flex flex-col sm:flex-row gap-3 sm:justify-between mt-auto">
+            <Button variant="close" type="button" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              leftIcon={<Plus className="h-4 w-4" />}
+            >
+              {isEdit ? "Update Category" : "Add Category"}
+            </Button>
+          </div>
+        </form>
       </div>
     </div>
   );

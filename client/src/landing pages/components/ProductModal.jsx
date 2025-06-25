@@ -3,6 +3,14 @@ import React from "react";
 const ProductModal = ({ product, onClose, onBuy }) => {
   if (!product) return null;
 
+  const {
+    image,
+    name,
+    brand,
+    price,
+    features = [], // ✅ Provide a default to avoid `.map` crash
+  } = product;
+
   return (
     <>
       {/* Overlay */}
@@ -26,19 +34,22 @@ const ProductModal = ({ product, onClose, onBuy }) => {
           </button>
 
           <img
-            src={product.image}
-            alt={product.name}
+            src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${image}`}
+            alt={name}
             className="w-full h-48 object-contain mb-4"
           />
-          <h4 className="text-xl font-semibold mb-2">{product.name}</h4>
-          <p className="text-gray-600 mb-2">Brand: {product.brand}</p>
-          <p className="text-lg font-bold mb-4">₹{product.price}</p>
 
-          <ul className="mb-4 list-disc list-inside text-gray-700">
-            {product.features.map((feature, i) => (
-              <li key={i}>{feature}</li>
-            ))}
-          </ul>
+          <h4 className="text-xl font-semibold mb-2">{name}</h4>
+          <p className="text-gray-600 mb-2">Brand: {brand}</p>
+          <p className="text-lg font-bold mb-4">₹{price}</p>
+
+          {features.length > 0 && (
+            <ul className="mb-4 list-disc list-inside text-gray-700">
+              {features.map((feature, i) => (
+                <li key={i}>{feature}</li>
+              ))}
+            </ul>
+          )}
 
           <button
             onClick={() => onBuy(product)}

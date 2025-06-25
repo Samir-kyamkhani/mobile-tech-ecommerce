@@ -17,7 +17,6 @@ import Button from "../Button";
 const STATUS_OPTIONS = [
   { value: "Active", label: "Active" },
   { value: "Inactive", label: "Inactive" },
-  { value: "VIP", label: "VIP" },
 ];
 
 export default function AddCustomersForm({
@@ -101,15 +100,17 @@ export default function AddCustomersForm({
             placeholder="john@example.com"
             icon={Mail}
           />
-          <InputField
-            label="Password"
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            required={!isEdit} // only required on create
-            placeholder="Enter a secure password"
-          />
+          {!isEdit && (
+            <InputField
+              label="Password"
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              required={!isEdit} // only required on create
+              placeholder="Enter a secure password"
+            />
+          )}
 
           <InputField
             label="Phone"

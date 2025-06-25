@@ -1,24 +1,34 @@
 import { Edit2, Image as ImageIcon, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { categories as dummyCategories } from "../.."; // Replace with your categories data source
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  createCategory,
+  deleteCategory,
+  getAllCategories,
+  updateCategory,
+} from "../../redux/slices/categorySlice";
 import AddCategoryForm from "../components/Forms/AddCategoryForm";
 
 const CategoriesPage = () => {
-  const [categories, setCategories] = useState(dummyCategories || []);
+  const categoryState = useSelector((state) => state.category);
+  const categories = categoryState?.categories || [];
+
   const [showForm, setShowForm] = useState(false);
   const [editCategory, setEditCategory] = useState(null);
 
+  const dispatch = useDispatch();
+
   const handleAddOrUpdate = (category) => {
-    if (category.id) {
-      setCategories((prev) =>
-        prev.map((c) => (c.id === category.id ? category : c))
-      );
+    if (editCategory) {
+      dispatch(
+        updateCategory({ id: editCategory.id, updatedData: category })
+      ).then(() => {
+        dispatch(getAllCategories());
+      });
     } else {
-      const newCategory = {
-        ...category,
-        id: Date.now(),
-      };
-      setCategories((prev) => [...prev, newCategory]);
+      dispatch(createCategory(category)).then(() => {
+        dispatch(getAllCategories());
+      });
     }
     setShowForm(false);
     setEditCategory(null);
@@ -28,6 +38,16 @@ const CategoriesPage = () => {
     setEditCategory(category);
     setShowForm(true);
   };
+
+  const handleDelete = (id) => {
+    dispatch(deleteCategory(id)).then(() => {
+      dispatch(getAllCategories());
+    });
+  };
+
+  useEffect(() => {
+    dispatch(getAllCategories());
+  }, [dispatch, categoryState.changed]);
 
   return (
     <div className="p-4 space-y-6">
@@ -92,7 +112,9 @@ const CategoriesPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {category.image ? (
                         <img
-                          src={category.image}
+                          src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${
+                            category.image
+                          }`}
                           alt={category.name}
                           className="h-12 w-12 object-cover rounded"
                         />
@@ -109,7 +131,7 @@ const CategoriesPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {category.sku || "-"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4  text-sm text-gray-500">
                       {category.description}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -120,7 +142,10 @@ const CategoriesPage = () => {
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
-                        <button className="text-red-600 hover:text-red-900">
+                        <button
+                          onClick={() => handleDelete(category.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -153,7 +178,9 @@ const CategoriesPage = () => {
             >
               {category.image ? (
                 <img
-                  src={category.image}
+                  src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${
+                    category.image
+                  }`}
                   alt={category.name}
                   className="h-32 w-full object-cover rounded-md mb-3"
                 />
@@ -175,7 +202,10 @@ const CategoriesPage = () => {
                 <strong>Description:</strong> {category.description}
               </div>
               <div className="flex flex-row-reverse gap-5 space-x-3 mt-2">
-                <button className="text-red-600 hover:text-red-900 text-sm font-medium">
+                <button
+                  onClick={() => handleDelete(category.id)}
+                  className="text-red-600 hover:text-red-900 text-sm font-medium"
+                >
                   Delete
                 </button>
                 <button

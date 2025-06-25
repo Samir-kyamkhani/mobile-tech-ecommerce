@@ -1,64 +1,15 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard";
 import ProductModal from "../components/ProductModal";
-import { useNavigate } from "react-router-dom"; // ⬅️ For navigation
-
-const products = [
-  {
-    id: 1,
-    name: "iPhone 15 Pro Max",
-    brand: "Apple",
-    price: 1199,
-    originalPrice: 1299,
-    category: "smartphones",
-    image: "https://m.media-amazon.com/images/I/81dT7CUY6GL.jpg",
-    rating: 4.8,
-    reviews: 234,
-    inStock: true,
-    features: [
-      '6.7" Super Retina XDR',
-      "A17 Pro chip",
-      "256GB storage",
-      "48MP camera system",
-    ],
-  },
-  {
-    id: 2,
-    name: "Samsung Galaxy S24 Ultra",
-    brand: "Samsung",
-    price: 1099,
-    category: "smartphones",
-    image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400",
-    rating: 4.7,
-    reviews: 189,
-    inStock: true,
-    features: [
-      '6.8" Dynamic AMOLED',
-      "Snapdragon 8 Gen 3",
-      "512GB storage",
-      "S Pen included",
-    ],
-  },
-  {
-    id: 3,
-    name: "Premium Leather Case",
-    brand: "Apple",
-    price: 59,
-    category: "cases",
-    image: "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400",
-    rating: 4.5,
-    reviews: 67,
-    inStock: true,
-    features: [
-      "Genuine leather",
-      "Perfect fit",
-      "Multiple colors",
-      "Drop protection",
-    ],
-  },
-];
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllProducts } from "../../redux/slices/productSlice";
 
 export default function FeaturedProducts() {
+  const dispatch = useDispatch();
+  const productState = useSelector((state) => state.product);
+  const products = productState?.products || [];
+
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem("cart");
     return savedCart ? JSON.parse(savedCart) : [];
@@ -71,6 +22,10 @@ export default function FeaturedProducts() {
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    dispatch(getAllProducts());
+  }, [dispatch]); // ✅ Removed unnecessary dependencies
 
   const addToCart = (product) => {
     setCart((prev) => {

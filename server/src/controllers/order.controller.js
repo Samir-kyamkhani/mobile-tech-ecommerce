@@ -42,33 +42,48 @@ export const getOrderById = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, "Order fetched", order));
 });
 
-// CREATE a new order
 export const createOrder = asyncHandler(async (req, res) => {
-  const { customerid, items } = req.body;
+  const { items, shipping } = req.body;
   const createdby = req.user?.id;
 
   if (req.user?.role !== "Customer") {
-    return ApiError.send(res, 403, "Only Customer can order products.");
+    return ApiError.send(res, 403, "Only Customers can order products.");
   }
 
-  if (!customerid || !items || !items.length) {
-    return ApiError.send(res, 400, "Missing required fields");
+  if (!items || !items.length || !shipping) {
+    return ApiError.send(res, 400, "Missing required fields.");
   }
 
-  // Calculate total
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
 
+  const newShipping = await prisma.shippingAddress.create({
+    data: {
+      firstName: shipping.firstName,
+      lastName: shipping.lastName,
+      email: shipping.email,
+      address: shipping.address,
+      city: shipping.city,
+      zip: shipping.zip,
+    },
+  });
+
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + 7);
+
   const order = await prisma.order.create({
     data: {
-      customerid,
+      customerid: createdby,
       total,
       createdby,
+      payment: "Pending",
+      shippingId: newShipping.id,
+      duedate: dueDate,
       items: {
         create: items.map((item) => ({
-          productid: item.productid,
+          productid: item.id,
           quantity: item.quantity,
           price: item.price,
         })),
@@ -76,10 +91,13 @@ export const createOrder = asyncHandler(async (req, res) => {
     },
     include: {
       items: true,
+      shipping: true,
     },
   });
 
-  return res.status(201).json(new ApiResponse(201, "Order created", order));
+  return res
+    .status(201)
+    .json(new ApiResponse(201, "Order created Successfully", order));
 });
 
 export const updateOrder = asyncHandler(async (req, res) => {

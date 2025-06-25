@@ -1,7 +1,7 @@
 import { Heart, Star } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const ProductCard = ({ product, addToCart, onView, cart }) => {
+const ProductCard = ({ product, addToCart, onView, cart = [] }) => {
   const navigate = useNavigate();
 
   const isInCart = cart.some((item) => item.id === product.id);
@@ -10,9 +10,9 @@ const ProductCard = ({ product, addToCart, onView, cart }) => {
     <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
       <div className="relative overflow-hidden">
         <img
-          src={product.image}
+          src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${product.image}`}
           alt={product.name || "Product image"}
-          className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-300"
         />
 
         <button
@@ -28,11 +28,8 @@ const ProductCard = ({ product, addToCart, onView, cart }) => {
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-500">{product.brand}</span>
           <div className="flex items-center">
-            <Star size={16} className="text-yellow-400" />
             <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
-            <span className="text-sm text-gray-400 ml-1">
-              ({product.reviews})
-            </span>
+            <span className="text-sm text-gray-400 ml-1">({product.reviews})</span>
           </div>
         </div>
 
@@ -41,12 +38,10 @@ const ProductCard = ({ product, addToCart, onView, cart }) => {
         </h3>
 
         <div className="flex items-center mb-4">
-          <span className="text-2xl font-bold text-gray-900">
-           ₹{product.price}
-          </span>
+          <span className="text-2xl font-bold text-gray-900">₹{product.price}</span>
           {product.originalPrice && (
             <span className="text-lg text-gray-500 line-through ml-2">
-             ₹{product.originalPrice}
+              ₹{product.originalPrice}
             </span>
           )}
         </div>

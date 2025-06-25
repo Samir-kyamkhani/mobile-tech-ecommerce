@@ -52,10 +52,77 @@ const login = asyncHandler(async (req, res) => {
     .cookie("accessToken", accessToken, cookieOptions)
     .json(
       new ApiResponse(200, "Login successful.", {
-        user,
+        user: userSafe,
         accessToken,
       }),
     );
+});
+
+const getAllUsers = asyncHandler(async (req, res) => {
+  const currentUser = req.user; // Assuming user is set by authentication middleware
+
+  let whereClause = {};
+
+  if (currentUser?.role === "Admin") {
+    whereClause = {
+      role: {
+        not: "Admin",
+      },
+    };
+  }
+
+  const users = await prisma.user.findMany({
+    where: whereClause,
+    include: { createdCategories: true },
+    orderBy: { name: "asc" },
+  });
+
+  if (!users || users.length === 0) {
+    return ApiError.send(res, 404, "No users found.");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Users fetched successfully.", users));
+});
+
+const updateAdmin = asyncHandler(async (req, res) => {
+  const { name, email, phone, location } = req.body;
+  const { id } = req.user;
+
+  const admin = await prisma.user.findUnique({ where: { id } });
+
+  if (!admin) {
+    return ApiError.send(res, 404, "Admin not found.");
+  }
+
+  const dataToUpdate = {};
+
+  if (typeof name === "string" && name.trim()) {
+    dataToUpdate.name = name.trim();
+  }
+  if (typeof email === "string" && email.trim()) {
+    dataToUpdate.email = email.trim().toLowerCase();;
+  }
+  if (typeof phone === "string" && phone.trim()) {
+    dataToUpdate.phone = phone.trim();
+  }
+  if (typeof location === "string" && location.trim()) {
+    dataToUpdate.location = location.trim();
+  }
+
+  if (Object.keys(dataToUpdate).length === 0) {
+    return ApiError.send(res, 400, "No valid fields provided for update.");
+  }
+
+  const updatedAdmin = await prisma.user.update({
+    where: { id },
+    data: dataToUpdate,
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, "Admin updated successfully.", updatedAdmin));
 });
 
 // ✅ LOGOUT
@@ -115,11 +182,21 @@ const forgotPassword = asyncHandler(async (req, res) => {
 // ✅ RESET PASSWORD
 
 const resetPassword = asyncHandler(async (req, res) => {
-  const userId = req.user?.id; // Assumes authenticated user
-  const { currentPassword, newPassword } = req.body;
+  const userId = req.user?.id;
 
-  if (!currentPassword || !newPassword) {
-    return ApiError.send(res, 400, "Current and new passwords are required.");
+  if (!userId) {
+    return ApiError.send(res, 401, "Unauthorized: User ID is missing.");
+  }
+
+  const { currentPassword, newPassword, confirmNewPassword } = req.body;
+
+  // Validate all fields
+  if (!currentPassword || !newPassword || !confirmNewPassword) {
+    return ApiError.send(
+      res,
+      400,
+      "Current password, new password, and confirm password are required.",
+    );
   }
 
   if (newPassword.length < 8) {
@@ -127,6 +204,14 @@ const resetPassword = asyncHandler(async (req, res) => {
       res,
       400,
       "New password must be at least 8 characters.",
+    );
+  }
+
+  if (newPassword !== confirmNewPassword) {
+    return ApiError.send(
+      res,
+      400,
+      "New password and confirm password do not match.",
     );
   }
 
@@ -138,7 +223,10 @@ const resetPassword = asyncHandler(async (req, res) => {
     );
   }
 
-  const user = await prisma.user.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, password: true },
+  });
 
   if (!user) {
     return ApiError.send(res, 404, "User not found.");
@@ -153,7 +241,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   const hashedNewPassword = await hashPassword(newPassword);
 
   await prisma.user.update({
-    where: { id: user.id },
+    where: { id: userId },
     data: { password: hashedNewPassword },
   });
 
@@ -162,4 +250,11 @@ const resetPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "Password changed successfully."));
 });
 
-export { login, logout, forgotPassword, resetPassword };
+export {
+  login,
+  logout,
+  forgotPassword,
+  resetPassword,
+  updateAdmin,
+  getAllUsers,
+};

@@ -19,11 +19,7 @@ export default function ImageUpload({
         return;
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        onChange({ target: { name, value: reader.result } });
-      };
-      reader.readAsDataURL(file);
+      onChange({ target: { name, value: file } });
     }
   };
 
@@ -44,10 +40,15 @@ export default function ImageUpload({
         {value && (
           <div className="relative w-20 h-20">
             <img
-              src={value}
+              src={
+                typeof value === "string"
+                  ? `${import.meta.env.VITE_API_BASE_URL_For_Image}${value}`
+                  : URL.createObjectURL(value)
+              }
               alt="Preview"
               className="w-full h-full object-cover rounded border"
             />
+
             {allowRemove && (
               <button
                 type="button"

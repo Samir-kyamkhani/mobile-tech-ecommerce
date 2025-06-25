@@ -3,18 +3,18 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 const app = express();
-const data = "16kb";
+const data = "10mb";
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: process.env.CLIENT_URI,
     credentials: true,
   }),
 );
 
 app.use(express.json({ limit: data }));
-app.use(express.urlencoded({ extended: true, limit: true }));
-app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true, limit: "10mb", }));
+app.use("/uploads", express.static("public/uploads"));
 app.use(cookieParser());
 
 import userRouter from "./routes/user.routes.js";

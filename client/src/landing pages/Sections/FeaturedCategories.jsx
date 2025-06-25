@@ -1,46 +1,63 @@
-import React, { useState } from "react";
-import {
-  Smartphone,
-  Phone,
-  BatteryCharging,
-  Headphones,
-  Usb,
-} from "lucide-react";
-
-const categories = [
-  { id: "all", name: "All Products", count: 24, icon: Phone },
-  { id: "smartphones", name: "Smartphones", count: 12, icon: Smartphone },
-  { id: "cases", name: "Phone Cases", count: 8, icon: Phone },
-  { id: "chargers", name: "Chargers", count: 6, icon: BatteryCharging },
-  { id: "headphones", name: "Headphones", count: 4, icon: Headphones },
-  { id: "accessories", name: "Accessories", count: 8, icon: Usb },
-];
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { getAllCategories } from "../../redux/slices/categorySlice";
 
 export default function FeaturedCategories() {
+  const dispatch = useDispatch();
   const [selectedCategory, setSelectedCategory] = useState("all");
 
+  const categories = useSelector((state) => state.category?.categories || []);
+  const categoryChanged = useSelector((state) => state.category?.changed);
+
+  useEffect(() => {
+    dispatch(getAllCategories());
+  }, [dispatch, categoryChanged]);
+
   return (
-    <section className="py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h3 className="text-3xl font-bold text-center mb-12">Shop by Category</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <section className="py-20 bg-gradient-to-b from-gray-100 to-white">
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+        <h3 className="text-4xl font-extrabold text-center mb-16 text-gray-900 tracking-tight">
+          Shop by Category
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {categories
-            .filter((cat) => cat.id !== "all") // exclude "all"
+            .filter((cat) => cat.id !== "all")
             .map((category) => {
-              const Icon = category.icon;
+              const isSelected = selectedCategory === category.id;
               return (
                 <div
                   key={category.id}
-                  className={`bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow cursor-pointer group ${
-                    selectedCategory === category.id ? "ring-2 ring-blue-600" : ""
-                  }`}
                   onClick={() => setSelectedCategory(category.id)}
+                  className={`bg-white rounded-2xl p-8 shadow-lg cursor-pointer transform transition-transform duration-300
+                    hover:shadow-xl hover:-translate-y-1
+                    flex flex-col items-center text-center
+                    ${
+                      isSelected
+                        ? "ring-4 ring-blue-500 bg-gradient-to-br from-blue-50 to-white"
+                        : ""
+                    }
+                  `}
                 >
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Icon className="w-8 h-8 text-blue-600" />
+                  <div
+                    className={`w-24 h-24 rounded-full overflow-hidden mb-6 flex items-center justify-center 
+                    transition-transform duration-300
+                    ${isSelected ? "scale-110" : "group-hover:scale-105"}
+                    `}
+                  >
+                    <img
+                      src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${
+                        category.image
+                      }`}
+                      alt={category.name}
+                      className="object-cover w-full h-full"
+                    />
                   </div>
-                  <h4 className="font-semibold text-gray-900 mb-2">{category.name}</h4>
-                  <p className="text-gray-600 text-sm">{category.count} products</p>
+                  <h4 className="text-xl font-semibold text-gray-900 mb-2">
+                    {category.name}
+                  </h4>
+                  <span className="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full">
+                    {category.count} products
+                  </span>
                 </div>
               );
             })}

@@ -1,11 +1,16 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function HeroSection() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   const handleShopNowClick = () => {
-    navigate("/shop");
+    if (pathname === "/shop") {
+      navigate("/"); // Go home if already on shop
+    } else {
+      navigate("/shop"); // Go to shop otherwise
+    }
   };
 
   return (
@@ -22,7 +27,7 @@ export default function HeroSection() {
             onClick={handleShopNowClick}
             className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transform hover:scale-105 transition-all duration-200"
           >
-            Shop Now
+            {pathname === "/shop" ? "Home" : "Shop Now"}
           </button>
         </div>
       </div>
