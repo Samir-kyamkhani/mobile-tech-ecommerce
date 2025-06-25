@@ -1,6 +1,7 @@
 node_modules/
 .env
 public/temp/
-public/temp/uploads
+uploads
+migrations
 
 /src/generated/prisma
