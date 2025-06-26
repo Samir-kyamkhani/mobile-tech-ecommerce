@@ -25,7 +25,7 @@ export default function AddProductsForm({
     price: productData?.price?.replace("$", "") || "",
     stock: productData?.stock || 0,
     status: productData?.status || "Active",
-    image: productData?.image || "",
+    imagesArray: productData?.images || [],
   });
 
   const categoryState = useSelector((state) => state.category);
@@ -33,16 +33,18 @@ export default function AddProductsForm({
 
   const formattedCategories = categories.map((cat) => ({
     value: cat.id,
-    // value: cat.name,
     label: cat.name,
   }));
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "image" && files && files[0]) {
+    const { name, value } = e.target;
+
+    if (name === "multi_images") {
+      // This handles the multiple images from ImageUpload
+      const files = Array.isArray(value) ? value : [];
       setForm((prev) => ({
         ...prev,
-        image: files[0],
+        imagesArray: files,
       }));
     } else {
       setForm((prev) => ({
@@ -54,6 +56,7 @@ export default function AddProductsForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     const payload = {
       ...form,
       price: parseFloat(form.price).toFixed(2),
@@ -65,9 +68,11 @@ export default function AddProductsForm({
     formData.append("price", payload.price);
     formData.append("stock", payload.stock);
     formData.append("status", payload.status);
-    if (payload.image && typeof payload.image !== "string") {
-      formData.append("image", payload.image);
-    }
+
+    // ✅ Append each image under the correct "images" field name
+    payload.imagesArray.forEach((image) => {
+      formData.append("images", image);
+    });
 
     onSubmit(formData);
     onClose();
@@ -128,7 +133,7 @@ export default function AddProductsForm({
               <SelectField
                 label="Status"
                 name="status"
-                value={form.status }
+                value={form.status}
                 onChange={handleChange}
                 options={STATUS_OPTIONS}
                 required
@@ -156,12 +161,16 @@ export default function AddProductsForm({
                 onChange={handleChange}
                 required
               />
-              <ImageUpload
-                label="Product Image"
-                value={form.image}
-                name="image"
-                onChange={handleChange}
-              />
+              <div>
+                <ImageUpload
+                  label="Product Images"
+                  multipleVal={form.imagesArray}
+                  name="images"
+                  onChange={handleChange}
+                  allowRemove={true}
+                  multiple={true}
+                />
+              </div>
             </div>
           </div>
 

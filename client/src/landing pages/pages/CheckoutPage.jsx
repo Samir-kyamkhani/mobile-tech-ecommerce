@@ -2,30 +2,35 @@ import React, { useEffect, useState } from "react";
 import { Truck, Shield, Star, Minus, Plus, X, CheckCircle } from "lucide-react";
 import { createOrder, getAllOrders } from "../../redux/slices/orderSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useNavigate } from "react-router-dom"; // [NEW]
+import { Link, useNavigate } from "react-router-dom";
 
 const CheckoutPage = () => {
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [cart, setCart] = useState(() => {
     const savedCart = localStorage.getItem("cart");
-    if (savedCart) {
-      try {
-        return JSON.parse(savedCart);
-      } catch (error) {
-        console.error("Error parsing saved cart:", error);
-        return [];
-      }
+    try {
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (error) {
+      console.error("Error parsing saved cart:", error);
+      return [];
     }
-    return [];
   });
-
-  const dispatch = useDispatch();
-  const navigate = useNavigate(); 
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
+
+  const [shippingInfo, setShippingInfo] = useState(() => ({
+    firstName: user?.name?.split(" ")[0] || "",
+    lastName: user?.name?.split(" ")[1] || "",
+    email: user?.email || "",
+    address: user?.location || "",
+    city: "",
+    zip: "",
+  }));
 
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
@@ -45,17 +50,13 @@ const CheckoutPage = () => {
   };
 
   const removeItem = (id) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== id));
+    setCart((prevCart) => {
+      const updatedCart = prevCart.filter((item) => item.id !== id);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+      window.dispatchEvent(new Event("cartUpdated"));
+      return updatedCart;
+    });
   };
-
-  const [shippingInfo, setShippingInfo] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    address: "",
-    city: "",
-    zip: "",
-  });
 
   const handleShippingChange = (e) => {
     const { name, value } = e.target;
@@ -67,6 +68,7 @@ const CheckoutPage = () => {
 
     if (!user) {
       navigate("/login");
+      return;
     }
 
     setIsProcessing(true);
@@ -79,13 +81,14 @@ const CheckoutPage = () => {
     };
 
     try {
-      dispatch(createOrder(order));
+      await dispatch(createOrder(order)).unwrap?.(); // unwrap if using RTK
       dispatch(getAllOrders());
 
       setOrderDetails(order);
       setOrderPlaced(true);
       setCart([]);
       localStorage.removeItem("cart");
+      window.dispatchEvent(new Event("cartUpdated"));
     } catch (error) {
       console.error("Error placing order:", error);
     } finally {
@@ -93,90 +96,8 @@ const CheckoutPage = () => {
     }
   };
 
-  const SuccessPopup = ({ details, onClose }) => (
-    <div
-      className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 sm:p-8 relative"
-        onClick={(e) => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="order-success-title"
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition rounded-full focus:outline-none focus:ring-2 focus:ring-red-500"
-          aria-label="Close"
-        >
-          <X className="w-8 h-8 p-1 bg-red-500 rounded-full text-white" />
-        </button>
-
-        <div className="flex flex-col items-center space-y-4">
-          <CheckCircle className="w-16 h-16 text-green-600" />
-          <h2
-            id="order-success-title"
-            className="text-2xl font-extrabold text-green-700 text-center"
-          >
-            Order Placed Successfully!
-          </h2>
-          <p className="text-center text-gray-700 text-base max-w-xs">
-            Thank you for your purchase,{" "}
-            <span className="font-semibold">{details.shipping.firstName}</span>!
-          </p>
-
-          <div className="w-full bg-gray-50 rounded-lg p-5 shadow-inner">
-            <h3 className="font-semibold mb-3 text-gray-900 text-lg border-b border-gray-300 pb-2">
-              Order Details:
-            </h3>
-            <ul className="divide-y divide-gray-200 max-h-52 overflow-y-auto mb-4 text-gray-800">
-              {details.items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex justify-between py-2 text-sm sm:text-base"
-                >
-                  <div className="truncate">
-                    {item.name} × {item.quantity}
-                  </div>
-                  <div className="font-medium">
-                    ₹{item.price * item.quantity}
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div className="font-semibold text-right text-lg mb-4 text-gray-900">
-              Total: ₹{details.total}
-            </div>
-
-            <h4 className="font-semibold mb-2 text-gray-900 text-md sm:text-lg border-t border-gray-300 pt-2">
-              Shipping Info
-            </h4>
-            <p className="text-gray-700 text-sm sm:text-base leading-relaxed whitespace-pre-line">
-              {details.shipping.firstName} {details.shipping.lastName}
-              {"\n"}
-              {details.shipping.address}, {details.shipping.city}
-              {"\n"}
-              ZIP: {details.shipping.zip}
-              {"\n"}
-              Email: {details.shipping.email}
-              {"\n"}
-              Payment Mode: Cash on Delivery
-            </p>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="mt-3 px-8 py-3 w-full sm:w-auto rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-center transition focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-
   const firstProductId = orderDetails?.items?.[0]?.id;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
@@ -191,7 +112,7 @@ const CheckoutPage = () => {
 
       {orderPlaced ? (
         <div className="flex items-center justify-center">
-          <div className="max-w-3xl  my-12 mx-4 p-6 bg-white/90 rounded-2xl shadow-xl border border-gray-200">
+          <div className="max-w-3xl my-12 mx-4 p-6 bg-white/90 rounded-2xl shadow-xl border border-gray-200">
             <h2 className="text-3xl font-bold text-green-700 mb-6 flex items-center space-x-3">
               <CheckCircle className="w-8 h-8" />
               <span>Thank you for your order!</span>
@@ -223,10 +144,12 @@ const CheckoutPage = () => {
               </h3>
               <p className="text-gray-700">
                 {orderDetails.shipping.firstName}{" "}
-                {orderDetails.shipping.lastName} <br />
-                {orderDetails.shipping.address}, {orderDetails.shipping.city}{" "}
+                {orderDetails.shipping.lastName}
                 <br />
-                ZIP: {orderDetails.shipping.zip} <br />
+                {orderDetails.shipping.address}, {orderDetails.shipping.city}
+                <br />
+                ZIP: {orderDetails.shipping.zip}
+                <br />
                 Email: {orderDetails.shipping.email}
               </p>
             </div>
@@ -276,7 +199,6 @@ const CheckoutPage = () => {
                         name: "firstName",
                         placeholder: "First Name",
                         type: "text",
-                        defaultValue: user?.name || "",
                       },
                       {
                         name: "lastName",
@@ -288,14 +210,12 @@ const CheckoutPage = () => {
                         placeholder: "Email Address",
                         type: "email",
                         colSpan: true,
-                        defaultValue: user?.email || "",
                       },
                       {
                         name: "address",
                         placeholder: "Street Address",
                         type: "text",
                         colSpan: true,
-                        defaultValue: user?.location || "",
                       },
                       { name: "city", placeholder: "City", type: "text" },
                       {
@@ -303,22 +223,20 @@ const CheckoutPage = () => {
                         placeholder: "ZIP/Postal Code",
                         type: "text",
                       },
-                    ].map(
-                      ({ name, placeholder, type, colSpan, defaultValue }) => (
-                        <input
-                          key={name}
-                          type={type}
-                          name={name}
-                          placeholder={placeholder}
-                          value={shippingInfo[name] || defaultValue}
-                          onChange={handleShippingChange}
-                          className={`rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
-                            colSpan ? "sm:col-span-2" : ""
-                          }`}
-                          required
-                        />
-                      )
-                    )}
+                    ].map(({ name, placeholder, type, colSpan }) => (
+                      <input
+                        key={name}
+                        type={type}
+                        name={name}
+                        placeholder={placeholder}
+                        value={shippingInfo[name]}
+                        onChange={handleShippingChange}
+                        className={`rounded-md border border-gray-300 px-4 py-2 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent ${
+                          colSpan ? "sm:col-span-2" : ""
+                        }`}
+                        required
+                      />
+                    ))}
                   </div>
                 </div>
 
@@ -331,7 +249,6 @@ const CheckoutPage = () => {
                       Payment Method
                     </h3>
                   </div>
-
                   <div>
                     <p className="mb-2 font-semibold text-gray-800">
                       Cash on Delivery
@@ -343,7 +260,7 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              {/* Right Column - Cart Summary */}
+              {/* Right Column */}
               <div className="lg:col-span-4">
                 <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 lg:p-8 sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto">
                   <h2 className="text-2xl font-bold mb-6 text-gray-900">
@@ -363,7 +280,7 @@ const CheckoutPage = () => {
                             <img
                               src={`${
                                 import.meta.env.VITE_API_BASE_URL_For_Image
-                              }${item.image}`}
+                              }${item.images?.[0]?.url ?? "default.jpg"}`}
                               alt={item.name}
                               className="w-16 h-16 rounded-lg object-cover"
                             />
@@ -376,7 +293,6 @@ const CheckoutPage = () => {
                               </span>
                             </div>
                           </div>
-
                           <div className="flex items-center space-x-2">
                             <button
                               type="button"
@@ -386,11 +302,7 @@ const CheckoutPage = () => {
                             >
                               <Minus className="w-4 h-4" />
                             </button>
-                            <span
-                              aria-live="polite"
-                              aria-atomic="true"
-                              className="w-5 text-center"
-                            >
+                            <span className="w-5 text-center">
                               {item.quantity}
                             </span>
                             <button

@@ -55,12 +55,19 @@ export const createProduct = (productData) => async (dispatch) => {
   try {
     const res = await axios.post(
       `${baseURL}/product/create-product`,
-      productData
+      productData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
+    console.log(res.data.data.product);
+    
 
     dispatch(
       productSuccess({
-        data: [res.data.data.products],
+        data: [res.data.data.product],
         message: "Product created successfully",
         showToast: true,
       })
@@ -74,11 +81,27 @@ export const getAllProducts = () => async (dispatch) => {
   dispatch(productRequest());
   try {
     const res = await axios.get(`${baseURL}/product/get-products`);
-
     dispatch(
       productSuccess({
         data: res.data.data.products,
         message: "Fetched products successfully",
+        showToast: false,
+      })
+    );
+  } catch (error) {
+    dispatch(productFail(handleError(error)));
+  }
+};
+
+export const getSingleProduct = (id) => async (dispatch) => {
+  dispatch(productRequest());
+  try {
+    const res = await axios.get(`${baseURL}/product/get-product/${id}`);
+
+    dispatch(
+      productSuccess({
+        data: [res.data.data.product],
+        message: "Fetched product successfully",
         showToast: false,
       })
     );
@@ -94,7 +117,12 @@ export const updateProduct =
     try {
       const res = await axios.put(
         `${baseURL}/product/update-product/${id}`,
-        updatedData
+        updatedData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       dispatch(
         productSuccess({

@@ -52,7 +52,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-[17.2px] border-b border-gray-200 shadow-sm">
           <h1 className="text-lg font-bold text-gray-900 tracking-tight">
-            Inventory<span className="text-blue-600">Manager</span>
+            Mobile<span className="text-blue-600"> Exommerce</span>
           </h1>
           <button
             onClick={closeSidebar}

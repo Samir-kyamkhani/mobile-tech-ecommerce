@@ -1,36 +1,38 @@
 import { Heart, Star } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useState } from "react";
 
-const ProductCard = ({ product, addToCart, onView, cart = [] }) => {
+const ProductCard = ({ product, addToCart, cart = [] }) => {
   const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
 
   const isInCart = cart.some((item) => item.id === product.id);
+  const imageUrl = `${import.meta.env.VITE_API_BASE_URL_For_Image}${
+    product.images[0]?.url || ""
+  }`;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
-      <div className="relative overflow-hidden">
-        <img
-          src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${product.image}`}
-          alt={product.name || "Product image"}
-          className="w-full h-64 object-contain group-hover:scale-105 transition-transform duration-300"
-        />
-
-        <button
-          type="button"
-          className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-          aria-label="Add to wishlist"
-        >
-          <Heart size={20} className="text-gray-600 hover:text-red-500" />
-        </button>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-300 overflow-hidden group">
+      <div className="relative aspect-[4/3] bg-gray-100 flex items-center justify-center">
+        <Link to={`/shop-product/${product.id}`} className="w-full h-full">
+          {!imageError ? (
+            <img
+              src={imageUrl}
+              alt={product?.name || "Product"}
+              className="w-full h-full object-contain"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <div className="text-gray-400 text-sm flex justify-center items-center w-full h-full">
+              Image not available
+            </div>
+          )}
+        </Link>
       </div>
 
       <div className="p-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm text-gray-500">{product.brand}</span>
-          <div className="flex items-center">
-            <span className="text-sm text-gray-600 ml-1">{product.rating}</span>
-            <span className="text-sm text-gray-400 ml-1">({product.reviews})</span>
-          </div>
         </div>
 
         <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
@@ -38,11 +40,36 @@ const ProductCard = ({ product, addToCart, onView, cart = [] }) => {
         </h3>
 
         <div className="flex items-center mb-4">
-          <span className="text-2xl font-bold text-gray-900">₹{product.price}</span>
+          <span className="text-2xl font-bold text-gray-900">
+            ₹{product.price}
+          </span>
           {product.originalPrice && (
             <span className="text-lg text-gray-500 line-through ml-2">
               ₹{product.originalPrice}
             </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 mb-6">
+          {product.stock ? (
+            <>
+              <div className="w-3 h-3 bg-green-500 rounded-full" />
+              <span className="text-green-600 font-medium">
+                In Stock ({product.stock} available)
+              </span>
+            </>
+          ) : (
+            <div className="flex flex-col items-start">
+              <div className="flex gap-2 items-center">
+                <div className="w-3 h-3 bg-red-500 rounded-full" />
+                <span className="text-red-600 font-medium">Out of Stock</span>
+              </div>
+
+              {!product.stock && (
+                <p className="text-sm text-red-500 mt-1">
+                  This product is currently out of stock.
+                </p>
+              )}
+            </div>
           )}
         </div>
 
@@ -64,13 +91,12 @@ const ProductCard = ({ product, addToCart, onView, cart = [] }) => {
               Add to Cart
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => onView(product)}
+          <Link
+            to={`/shop-product/${product.id}`}
             className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             View
-          </button>
+          </Link>
         </div>
       </div>
     </div>

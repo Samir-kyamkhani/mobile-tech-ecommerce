@@ -23,9 +23,9 @@ const ProductsPage = () => {
 
   const handleAddOrUpdate = (product) => {
     if (editProduct) {
-      dispatch(updateProduct({ id: editProduct.id, updatedData: product })).then(() =>
-        dispatch(getAllProducts())
-      );
+      dispatch(
+        updateProduct({ id: editProduct.id, updatedData: product })
+      ).then(() => dispatch(getAllProducts()));
     } else {
       dispatch(createProduct(product)).then(() => dispatch(getAllProducts()));
     }
@@ -60,7 +60,9 @@ const ProductsPage = () => {
       <div className="flex flex-col px-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="mt-1 text-sm text-gray-500">Manage your product inventory and catalog.</p>
+          <p className="mt-1 text-sm text-gray-500">
+            Manage your product inventory and catalog.
+          </p>
         </div>
         <div className="mt-4 sm:mt-0 flex space-x-3">
           <button
@@ -107,18 +109,35 @@ const ProductsPage = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Product
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Price
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Stock
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500">No Products found.</td>
+                  <td
+                    colSpan={6}
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
+                    No Products found.
+                  </td>
                 </tr>
               ) : (
                 products.map((product) => {
@@ -127,44 +146,80 @@ const ProductsPage = () => {
                     <tr key={product.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          {product?.image && (
-                            <img
-                              src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${product.image}`}
-                              alt={product?.name || "Product"}
-                              className="w-14 h-14 rounded-lg object-cover mr-3"
-                              onError={(e) => {
-                                e.currentTarget.onerror = null;
-                                e.currentTarget.style.display = "none";
-                                e.currentTarget.nextSibling.style.display = "flex";
+                          <div className="relative w-12 h-12 mr-3 flex-shrink-0">
+                            {(() => {
+                              if (product?.images?.length > 0) {
+                                return (
+                                  <img
+                                    src={`${
+                                      import.meta.env
+                                        .VITE_API_BASE_URL_For_Image
+                                    }${product.images[0].url}`}
+                                    alt={product?.name || "Product"}
+                                    className="w-12 h-12 rounded-lg object-cover absolute top-0 left-0"
+                                    onError={(e) => {
+                                      e.currentTarget.onerror = null;
+                                      e.currentTarget.style.display = "none";
+                                      const fallback =
+                                        e.currentTarget.parentNode.querySelector(
+                                          ".fallback-icon"
+                                        );
+                                      if (fallback)
+                                        fallback.style.display = "flex";
+                                    }}
+                                  />
+                                );
+                              }
+                            })()}
+
+                            <Package
+                              className="fallback-icon w-12 h-12 p-1 text-white bg-gray-400 rounded-full absolute top-0 left-0"
+                              style={{
+                                display:
+                                  product?.images?.length > 0 ? "none" : "flex",
                               }}
                             />
-                          )}
-                          <Package
-                            className="w-10 h-10 p-1 text-white bg-gray-400 rounded-full mr-3 flex-shrink-0"
-                            style={{ display: product?.image ? "none" : "flex" }}
-                          />
+                          </div>
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{product?.name || "Unnamed"}</div>
-                            <div className="text-sm text-gray-500">ID: {product?.id || "-"}</div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {product?.name || "Unnamed"}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              ID: {product?.id || "-"}
+                            </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {product?.category?.name || "Uncategorized"}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">₹{product?.price ?? "0"}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{product?.stock ?? "0"}</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        ₹{product?.price ?? "0"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {product?.stock ?? "0"}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(product?.status)}`}>
+                        <span
+                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                            product?.status
+                          )}`}
+                        >
                           {product?.status || "Draft"}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button onClick={() => handleEdit(product)} className="text-blue-600 hover:text-blue-900">
+                          <button
+                            onClick={() => handleEdit(product)}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
                             <Edit2 className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900">
+                          <button
+                            onClick={() => handleDelete(product.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -184,39 +239,64 @@ const ProductsPage = () => {
           <h3 className="text-lg font-medium text-gray-900">Products</h3>
         </div>
         {products.length === 0 ? (
-          <p className="px-6 py-4 text-center text-gray-500">No Products found.</p>
+          <p className="px-6 py-4 text-center text-gray-500">
+            No Products found.
+          </p>
         ) : (
           products.map((product) => {
             if (!product) return null;
             return (
-              <div key={product.id} className="bg-white mx-4 mb-4 rounded-lg shadow p-4 border border-gray-200">
+              <div
+                key={product.id}
+                className="bg-white mx-4 mb-4 rounded-lg shadow p-4 border border-gray-200"
+              >
                 <div className="flex items-center mb-2">
                   <div className="relative w-12 h-12 mr-3 flex-shrink-0">
-                    {product?.image && (
-                      <img
-                        src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${product.image}`}
-                        alt={product?.name || "Product"}
-                        className="w-12 h-12 rounded-lg object-cover absolute top-0 left-0"
-                        onError={(e) => {
-                          e.currentTarget.onerror = null;
-                          e.currentTarget.style.display = "none";
-                          const fallback = e.currentTarget.parentNode.querySelector(".fallback-icon");
-                          if (fallback) fallback.style.display = "flex";
-                        }}
-                      />
-                    )}
+                    {(() => {
+                      if (product?.images?.length > 0) {
+                        return (
+                          <img
+                            src={`${
+                              import.meta.env.VITE_API_BASE_URL_For_Image
+                            }${product.images[0].url}`}
+                            alt={product?.name || "Product"}
+                            className="w-12 h-12 rounded-lg object-cover absolute top-0 left-0"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.style.display = "none";
+                              const fallback =
+                                e.currentTarget.parentNode.querySelector(
+                                  ".fallback-icon"
+                                );
+                              if (fallback) fallback.style.display = "flex";
+                            }}
+                          />
+                        );
+                      }
+                    })()}
+
                     <Package
                       className="fallback-icon w-12 h-12 p-1 text-white bg-gray-400 rounded-full absolute top-0 left-0"
-                      style={{ display: product?.image ? "none" : "flex" }}
+                      style={{
+                        display: product?.images?.length > 0 ? "none" : "flex",
+                      }}
                     />
                   </div>
-                  <h4 className="text-sm font-semibold text-gray-900">{product?.name || "Unnamed"}</h4>
+                  <h4 className="text-sm font-semibold text-gray-900">
+                    {product?.name || "Unnamed"}
+                  </h4>
                 </div>
-                <span className={`text-xs font-medium px-2 py-1 rounded-full ${getStatusColor(product?.status)}`}>
+
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded-full ${getStatusColor(
+                    product?.status
+                  )}`}
+                >
                   {product?.status || "Draft"}
                 </span>
                 <div className="text-sm text-gray-500 mb-1">
-                  <strong>Category:</strong> {product?.category?.name || "Uncategorized"}
+                  <strong>Category:</strong>{" "}
+                  {product?.category?.name || "Uncategorized"}
                 </div>
                 <div className="text-sm text-gray-500 mb-1">
                   <strong>Price:</strong> ₹{product?.price ?? "0"}
@@ -225,8 +305,18 @@ const ProductsPage = () => {
                   <strong>Stock:</strong> {product?.stock ?? "0"}
                 </div>
                 <div className="flex flex-row-reverse gap-5 space-x-3 mt-2">
-                  <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-900 text-sm font-medium">Delete</button>
-                  <button onClick={() => handleEdit(product)} className="text-blue-600 hover:text-blue-900 text-sm font-medium">Edit</button>
+                  <button
+                    onClick={() => handleDelete(product.id)}
+                    className="text-red-600 hover:text-red-900 text-sm font-medium"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    onClick={() => handleEdit(product)}
+                    className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                  >
+                    Edit
+                  </button>
                 </div>
               </div>
             );

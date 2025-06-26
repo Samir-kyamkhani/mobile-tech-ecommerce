@@ -43,17 +43,24 @@ model Category {
 }
 
 model Product {
-  id         String        @id @default(uuid())
+  id         String         @id @default(uuid())
   name       String
-  category   Category      @relation(fields: [categoryid], references: [id])
+  category   Category       @relation(fields: [categoryid], references: [id])
   categoryid String
   price      Decimal
   stock      Int
   status     ProductStatus
-  image      String?
+  images     ProductImage[] // Relation
   createdby  String
-  creator    User          @relation("CreatedProducts", fields: [createdby], references: [id])
+  creator    User           @relation("CreatedProducts", fields: [createdby], references: [id])
   orderItems OrderItem[]
+}
+
+model ProductImage {
+  id        String  @id @default(uuid())
+  url       String
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Order {

@@ -14,7 +14,7 @@ const router = Router();
 router.post(
   "/create-product",
   authMiddleware,
-  upload.single("image"),
+  upload.array("images", 5),
   createProduct,
 );
 router.get("/get-products", getAllProducts);
@@ -22,7 +22,7 @@ router.get("/get-product/:id", getProductById);
 router.put(
   "/update-product/:id",
   authMiddleware,
-  upload.single("image"),
+  upload.array("images", 5),
   updateProduct,
 );
 router.delete("/delete-product/:id", authMiddleware, deleteProduct);

@@ -13,7 +13,11 @@ const __dirname = path.dirname(__filename);
 const createProduct = asyncHandler(async (req, res) => {
   const { name, categoryid, price, stock, status } = req.body;
   const { id: createdby, role } = req.user;
-  const image = req.file ? `/uploads/${req.file.filename}` : null;
+  const imagePaths =
+    req.files?.map((file) => `/uploads/${file.filename}`) || [];
+
+    console.log("===================================", req.files);
+    
 
   if (role !== "Admin") {
     return ApiError.send(res, 403, "Only admins can create a product.");
@@ -23,11 +27,10 @@ const createProduct = asyncHandler(async (req, res) => {
     return ApiError.send(res, 400, "All required fields must be provided.");
   }
 
-  if (!image) {
-    return ApiError.send(res, 403, "Please Upload Product Image.");
+  if (imagePaths.length === 0) {
+    return ApiError.send(res, 403, "Please upload at least one product image.");
   }
 
-  // Ensure price is numeric
   const numericPrice = parseFloat(
     typeof price === "string" ? price.replace(/[^0-9.]/g, "") : price,
   );
@@ -55,21 +58,22 @@ const createProduct = asyncHandler(async (req, res) => {
       price: numericPrice,
       stock: numericStock,
       status,
-      image,
       createdby,
+      images: {
+        create: imagePaths.map((url) => ({ url })),
+      },
     },
+    include: { images: true },
   });
 
-  return res.status(201).json(
-    new ApiResponse(201, "Product created successfully", {
-      product,
-    }),
-  );
+  return res
+    .status(201)
+    .json(new ApiResponse(201, "Product created successfully", { product }));
 });
 
 const getAllProducts = asyncHandler(async (req, res) => {
   const products = await prisma.product.findMany({
-    include: { category: true },
+    include: { category: true, images: true },
     orderBy: { name: "asc" },
   });
 
@@ -85,13 +89,9 @@ const getAllProducts = asyncHandler(async (req, res) => {
 const getProductById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  if (req.user?.role !== "Admin") {
-    return ApiError.send(res, 403, "Only admins can fetch products.");
-  }
-
   const product = await prisma.product.findUnique({
     where: { id },
-    include: { category: true, orderItems: true, creator: true },
+    include: { category: true, images: true, orderItems: true, creator: true },
   });
 
   if (!product) {
@@ -111,7 +111,11 @@ const updateProduct = asyncHandler(async (req, res) => {
     return ApiError.send(res, 403, "Only admins can update products.");
   }
 
-  const existingProduct = await prisma.product.findUnique({ where: { id } });
+  const existingProduct = await prisma.product.findUnique({
+    where: { id },
+    include: { images: true },
+  });
+
   if (!existingProduct) {
     return ApiError.send(res, 404, "Product not found.");
   }
@@ -125,22 +129,24 @@ const updateProduct = asyncHandler(async (req, res) => {
     }
   }
 
-  let newImageFilename = existingProduct.image;
-
-  if (req.file) {
-    // Delete the old image if exists
-    if (existingProduct.image) {
-      const oldImageFileName = existingProduct.image.replace("/uploads/", "");
-      const oldImagePath = path.join(
-        __dirname,
-        "../../public/uploads",
-        oldImageFileName,
-      );
-      deleteOldImage(oldImagePath);
+  if (req.files?.length > 0) {
+    for (const img of existingProduct.images) {
+      const oldPath = path.join(__dirname, "../../public", img.url);
+      deleteOldImage(oldPath);
     }
 
-    // Store new image path
-    newImageFilename = `/uploads/${req.file.filename}`;
+    await prisma.productImage.deleteMany({ where: { productId: id } });
+
+    await prisma.product.update({
+      where: { id },
+      data: {
+        images: {
+          create: req.files.map((file) => ({
+            url: `/uploads/${file.filename}`,
+          })),
+        },
+      },
+    });
   }
 
   const numericPrice =
@@ -163,8 +169,8 @@ const updateProduct = asyncHandler(async (req, res) => {
       price: numericPrice,
       stock: numericStock,
       status: status ?? existingProduct.status,
-      image: newImageFilename,
     },
+    include: { images: true },
   });
 
   return res.status(200).json(
@@ -181,28 +187,20 @@ const deleteProduct = asyncHandler(async (req, res) => {
     return ApiError.send(res, 403, "Only admins can delete products.");
   }
 
-  const product = await prisma.product.findUnique({ where: { id } });
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: { images: true },
+  });
+
   if (!product) {
     return ApiError.send(res, 404, "Product not found.");
   }
 
-  // Delete all related OrderItems first to avoid foreign key constraint violation
-  await prisma.orderItem.deleteMany({
-    where: { productid: id },
-  });
-
-  // Delete product image from disk if it exists
-  if (product.image) {
-    const imageFileName = product.image.replace("/uploads/", "");
-    const imagePath = path.join(
-      __dirname,
-      "../../public/uploads",
-      imageFileName,
-    );
+  for (const img of product.images) {
+    const imagePath = path.join(__dirname, "../../public", img.url);
     deleteOldImage(imagePath);
   }
 
-  // Delete the product itself
   await prisma.product.delete({ where: { id } });
 
   return res

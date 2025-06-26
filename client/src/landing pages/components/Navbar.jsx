@@ -1,5 +1,5 @@
 import { Menu, Search, ShoppingCart, X, User } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -8,6 +8,25 @@ export default function Navbar() {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state?.auth);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const updateCount = () => {
+      const storedItems = JSON.parse(localStorage.getItem("cart")) || [];
+      setCount(storedItems.length);
+    };
+
+    // Initial count load
+    updateCount();
+
+    // Listen for custom event
+    window.addEventListener("cartUpdated", updateCount);
+
+    // Cleanup listener on unmount
+    return () => {
+      window.removeEventListener("cartUpdated", updateCount);
+    };
+  }, []);
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -75,7 +94,14 @@ export default function Navbar() {
               className="p-2 text-gray-700 hover:text-blue-600"
               onClick={() => navigate("/checkout")}
             >
-              <ShoppingCart size={24} />
+              <div className="relative">
+                <ShoppingCart className="text-gray-700" size={24} />
+                {count > 0 && (
+                  <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ring-2 ring-white">
+                    {count}
+                  </div>
+                )}
+              </div>
             </button>
 
             {user ? (
@@ -106,7 +132,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu (unchanged) */}
+      {/* Mobile Menu */}
       {showMobileMenu && (
         <div className="md:hidden bg-white border-t">
           <div className="px-4 py-2 space-y-2">
@@ -150,15 +176,13 @@ export default function Navbar() {
               Support
             </NavLink>
 
-            {/* ✅ Mobile Login/Profile */}
-            {isLoggedIn ? (
+            {user ? (
               <NavLink
                 to="/profile"
                 onClick={() => setShowMobileMenu(false)}
                 className="w-full flex items-center space-x-2 py-3 px-4 text-gray-700 hover:text-blue-600"
               >
                 <User className="w-8 h-8 p-1 text-white bg-gray-700 rounded-full" />
-
                 <span>Profile</span>
               </NavLink>
             ) : (

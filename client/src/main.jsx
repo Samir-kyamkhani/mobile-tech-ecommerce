@@ -24,8 +24,8 @@ import UserProfilePage from "./landing pages/pages/UserProfilePage.jsx";
 import { Provider } from "react-redux";
 import { store } from "./redux/store.js";
 import ProtectedRoute from "./layouts/ProtectedRoute.jsx";
-import { ToastContainer } from "react-toastify";
 import ResponsiveToastContainer from "./layouts/ResponsiveToastContainer.jsx";
+import ProductDetailsPage from "./landing pages/pages/ProductDetailsPage.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -34,6 +34,8 @@ const router = createBrowserRouter(
       <Route path="/" element={<LandingPageLayout />}>
         <Route index element={<HomePage />} />
         <Route path="shop" element={<ShopPage />} />
+        <Route path="shop/:id" element={<ShopPage />} />
+        <Route path="shop-product/:id" element={<ProductDetailsPage />} />
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="support" element={<SupportPage />} />
         <Route path="login" element={<LoginPage />} />
@@ -59,7 +61,7 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
-    <ResponsiveToastContainer/>
+    <ResponsiveToastContainer />
     <RouterProvider router={router} />
   </Provider>
 );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getAllCategories } from "../../redux/slices/categorySlice";
+import { Link } from "react-router-dom";
 
 export default function FeaturedCategories() {
   const dispatch = useDispatch();
@@ -25,40 +26,39 @@ export default function FeaturedCategories() {
             .map((category) => {
               const isSelected = selectedCategory === category.id;
               return (
-                <div
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.id)}
-                  className={`bg-white rounded-2xl p-8 shadow-lg cursor-pointer transform transition-transform duration-300
-                    hover:shadow-xl hover:-translate-y-1
-                    flex flex-col items-center text-center
-                    ${
-                      isSelected
-                        ? "ring-4 ring-blue-500 bg-gradient-to-br from-blue-50 to-white"
-                        : ""
-                    }
-                  `}
-                >
+                <Link to={`/shop/${category.id}`} key={category.id}>
                   <div
-                    className={`w-24 h-24 rounded-full overflow-hidden mb-6 flex items-center justify-center 
-                    transition-transform duration-300
-                    ${isSelected ? "scale-110" : "group-hover:scale-105"}
-                    `}
-                  >
-                    <img
-                      src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${
-                        category.image
+                    onClick={() => setSelectedCategory(category.id)}
+                    className={`bg-white rounded-2xl p-8 shadow-lg cursor-pointer transform transition-transform duration-300
+                      hover:shadow-xl hover:-translate-y-1
+                      flex flex-col items-center text-center
+                      ${
+                        isSelected
+                          ? "ring-4 ring-blue-500 bg-gradient-to-br from-blue-50 to-white"
+                          : ""
                       }`}
-                      alt={category.name}
-                      className="object-cover w-full h-full"
-                    />
+                  >
+                    <div
+                      className={`w-24 h-24 rounded-full overflow-hidden mb-6 flex items-center justify-center 
+                        transition-transform duration-300
+                        ${isSelected ? "scale-110" : "group-hover:scale-105"}`}
+                    >
+                      <img
+                        src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${
+                          category.image
+                        }`}
+                        alt={category.name || "Category"}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <h4 className="text-xl font-semibold text-gray-900 mb-2">
+                      {category.name}
+                    </h4>
+                    <span className="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full">
+                      {category.count} products
+                    </span>
                   </div>
-                  <h4 className="text-xl font-semibold text-gray-900 mb-2">
-                    {category.name}
-                  </h4>
-                  <span className="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full">
-                    {category.count} products
-                  </span>
-                </div>
+                </Link>
               );
             })}
         </div>

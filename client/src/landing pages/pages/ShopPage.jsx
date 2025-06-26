@@ -1,11 +1,10 @@
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Filter, X } from "lucide-react";
 import ProductCard from "../components/ProductCard";
-import ProductModal from "../components/ProductModal";
 import { getAllProducts } from "../../redux/slices/productSlice";
 import { getAllCategories } from "../../redux/slices/categorySlice";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import HeroSection from "../Sections/HeroSection";
 
 const brands = ["All", "Apple", "Samsung", "Sony", "Nike"];
@@ -17,6 +16,8 @@ const sortOptions = [
 ];
 
 const ShopPage = () => {
+  const { id } = useParams();
+
   const [showFilters, setShowFilters] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedBrand, setSelectedBrand] = useState("All");
@@ -28,46 +29,40 @@ const ShopPage = () => {
   const products = useSelector((state) => state.product?.products || []);
   const categoryChanged = useSelector((state) => state.category?.changed);
 
-  // Load cart from localStorage initially
-  const [cart, setCart] = useState(() => {
-    const savedCart = localStorage.getItem("cart");
-    return savedCart ? JSON.parse(savedCart) : [];
-  });
-
   const dispatch = useDispatch();
 
-  // Dynamically calculate max price from products
+  useEffect(() => {
+    if (id) {
+      const parsedId = isNaN(Number(id)) ? id : Number(id);
+      setSelectedCategory(parsedId);
+    } else {
+      setSelectedCategory(null);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    dispatch(getAllProducts());
+    dispatch(getAllCategories());
+  }, [dispatch, categoryChanged]);
+
   const maxPrice = useMemo(() => {
     if (products.length === 0) return 200000;
     return Math.max(...products.map((p) => Number(p.price)));
   }, [products]);
 
-  // Update price range upper bound if maxPrice changes and priceRange[1] > maxPrice
   useEffect(() => {
-    if (priceRange[1] > maxPrice) {
-      setPriceRange([priceRange[0], maxPrice]);
-    }
+    setPriceRange(([min, max]) => [min, max > maxPrice ? maxPrice : max]);
   }, [maxPrice]);
 
-  useEffect(() => {
-    dispatch(getAllProducts());
-    dispatch(getAllCategories());
-  }, [dispatch, categoryChanged]);
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem("cart");
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
 
-  const navigate = useNavigate(); // <-- initialize navigate
-
-  // Save cart to localStorage on every cart update
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
-  // Fetch products and categories when component mounts or categories change
-  useEffect(() => {
-    dispatch(getAllProducts());
-    dispatch(getAllCategories());
-  }, [dispatch, categoryChanged]);
-
-  // Add to cart logic
   const addToCart = (product) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
@@ -82,12 +77,6 @@ const ShopPage = () => {
       }
     });
     setSelectedProduct(null);
-  };
-
-  // Handle buy: add to cart and navigate to checkout
-  const handleBuy = (product) => {
-    addToCart(product);
-    navigate("/checkout");
   };
 
   const filteredProducts = useMemo(() => {
@@ -139,10 +128,13 @@ const ShopPage = () => {
 
       <div className="max-w-[90rem] mx-auto lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
         {/* Filters Sidebar */}
-        <aside className="lg:w-64">
-          <div className="bg-white rounded-lg shadow-sm p-6 sticky top-24">
+        <aside className="w-full lg:w-64 mb-4 lg:mb-0">
+          <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 sticky top-20">
+            {/* Header with toggle button */}
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Filters</h3>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800">
+                Filters
+              </h3>
               <button
                 className="lg:hidden p-2 rounded-md hover:bg-gray-100 transition"
                 onClick={() => setShowFilters(!showFilters)}
@@ -152,12 +144,15 @@ const ShopPage = () => {
               </button>
             </div>
 
+            {/* Filter Content */}
             <div
-              className={`${
-                showFilters ? "block" : "hidden lg:block"
-              } space-y-6`}
+              className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                showFilters
+                  ? "max-h-screen opacity-100"
+                  : "max-h-0 opacity-0 lg:max-h-full lg:opacity-100"
+              } lg:block space-y-6`}
             >
-              {/* Categories */}
+              {/* Category Filter */}
               <div>
                 <h4 className="text-sm font-medium text-gray-700 mb-2">
                   Category
@@ -307,13 +302,6 @@ const ShopPage = () => {
           )}
         </main>
       </div>
-
-      {/* Product Modal */}
-      <ProductModal
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        onBuy={handleBuy}
-      />
     </div>
   );
 };

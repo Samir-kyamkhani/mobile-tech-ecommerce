@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard";
-import ProductModal from "../components/ProductModal";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../../redux/slices/productSlice";
@@ -29,23 +28,25 @@ export default function FeaturedProducts() {
 
   const addToCart = (product) => {
     setCart((prev) => {
+      let updatedCart;
       const existing = prev.find((item) => item.id === product.id);
+
       if (existing) {
-        return prev.map((item) =>
+        updatedCart = prev.map((item) =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       } else {
-        return [...prev, { ...product, quantity: 1 }];
+        updatedCart = [...prev, { ...product, quantity: 1 }];
       }
-    });
-  };
 
-  const handleBuy = (product) => {
-    addToCart(product);
-    setSelectedProduct(null);
-    setCheckoutRequested(true);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+      window.dispatchEvent(new Event("cartUpdated"));
+
+      return updatedCart;
+    });
   };
 
   useEffect(() => {
@@ -67,18 +68,10 @@ export default function FeaturedProducts() {
               key={product.id}
               product={product}
               addToCart={addToCart}
-              onView={setSelectedProduct}
               cart={cart}
             />
           ))}
         </div>
-
-        {/* ✅ Modal shown if selectedProduct exists */}
-        <ProductModal
-          product={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-          onBuy={handleBuy}
-        />
       </div>
     </section>
   );
