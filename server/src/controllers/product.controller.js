@@ -16,8 +16,7 @@ const createProduct = asyncHandler(async (req, res) => {
   const imagePaths =
     req.files?.map((file) => `/uploads/${file.filename}`) || [];
 
-    console.log("===================================", req.files);
-    
+  console.log("===================================", req.files);
 
   if (role !== "Admin") {
     return ApiError.send(res, 403, "Only admins can create a product.");
@@ -76,10 +75,6 @@ const getAllProducts = asyncHandler(async (req, res) => {
     include: { category: true, images: true },
     orderBy: { name: "asc" },
   });
-
-  if (!products || products.length === 0) {
-    return ApiError.send(res, 404, "No products found.");
-  }
 
   return res
     .status(200)
