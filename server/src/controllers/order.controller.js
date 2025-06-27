@@ -5,24 +5,60 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 // GET all orders
 export const getAllOrders = asyncHandler(async (req, res) => {
-  const orders = await prisma.order.findMany({
-    include: {
-      customer: true,
-      items: {
-        include: {
-          product: {
-            include: {
-              images: true, // include product images if needed
-              category: true, // include product category if needed
+  const { id, role } = req.user;
+
+  if (role === "Admin") {
+    const orders = await prisma.order.findMany({
+      include: {
+        customer: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                images: true,
+                category: true,
+              },
             },
           },
         },
+        shipping: true,
       },
-      shipping: true, // include shipping info if you want
-    },
-  });
+    });
 
-  return res.status(200).json(new ApiResponse(200, "Orders fetched", orders));
+    return res.status(200).json(new ApiResponse(200, "Orders fetched", orders));
+  }
+
+  console.log("=============================================",id);
+  
+
+  if (role === "Customer") {
+    // Fetch orders where customerId matches the logged-in user's id
+    const customerOrders = await prisma.order.findMany({
+      where: {
+        customerid: id,
+      },
+      include: {
+        customer: true,
+        items: {
+          include: {
+            product: {
+              include: {
+                images: true,
+                category: true,
+              },
+            },
+          },
+        },
+        shipping: true,
+      },
+    });
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Customer orders fetched", customerOrders));
+  }
+
+  return res.status(403).json(new ApiResponse(403, "Unauthorized"));
 });
 
 export const getOrderById = asyncHandler(async (req, res) => {
