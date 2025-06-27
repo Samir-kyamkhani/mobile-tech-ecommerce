@@ -65,8 +65,7 @@ const Dashboard = () => {
       )
     );
 
-    const updatedData = { status: newPayment };
-
+    const updatedData = { payment: newPayment };
     dispatch(updateOrder({ id, updatedData })).then(() => {
       dispatch(getAllOrders());
     });
@@ -116,7 +115,14 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <StatsGridCard />
+      {/* Stats Grid */}
+      <StatsGridCard
+        orders={orders}
+        previousOrdersCount={100}
+        previousProductsCount={50}
+        previousUsersCount={200}
+        previousRevenue={50000}
+      />
 
       {/* Recent Orders - Desktop Table */}
       <div className="hidden md:block bg-white shadow rounded-lg border border-gray-200">

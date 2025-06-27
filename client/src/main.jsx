@@ -26,11 +26,13 @@ import { store } from "./redux/store.js";
 import ProtectedRoute from "./layouts/ProtectedRoute.jsx";
 import ResponsiveToastContainer from "./layouts/ResponsiveToastContainer.jsx";
 import ProductDetailsPage from "./landing pages/pages/ProductDetailsPage.jsx";
+import NotFoundPage from "./landing pages/pages/NotFoundPage.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       {/* Public Routes */}
+      <Route path="*" element={<NotFoundPage />} />
       <Route path="/" element={<LandingPageLayout />}>
         <Route index element={<HomePage />} />
         <Route path="shop" element={<ShopPage />} />

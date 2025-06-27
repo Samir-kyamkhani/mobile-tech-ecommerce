@@ -7,30 +7,63 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllOrders } from "../../redux/slices/orderSlice";
 import { getAllProducts } from "../../redux/slices/productSlice";
 import { getAllUsers } from "../../redux/slices/totalUsersSlice";
 
-export default function StatsGridCard() {
+function calculateChange(current, previous) {
+  if (previous === 0) return "0%";
+  const change = ((current - previous) / previous) * 100;
+  const rounded = change.toFixed(1);
+  return `${change >= 0 ? "+" : ""}${rounded}%`;
+}
+
+export default function StatsGridCard({
+  orders = [],
+  previousOrdersCount = 0,
+  previousProductsCount = 0,
+  previousUsersCount = 0,
+  previousRevenue = 0,
+}) {
   const dispatch = useDispatch();
 
-  const { orders } = useSelector((state) => state.order);
-  const { products } = useSelector((state) => state.product);
-  const { data } = useSelector((state) => state.user.users);
-  console.log();
-  
-  
+  const { products = [] } = useSelector((state) => state.product);
+  const { users = [] } = useSelector((state) => state.user);
 
   useEffect(() => {
-    dispatch(getAllOrders());
     dispatch(getAllProducts());
     dispatch(getAllUsers());
   }, [dispatch]);
 
   const totalRevenue = useMemo(() => {
-    if (!orders) return 0;
-    return orders.reduce((acc, order) => acc + parseFloat(order.total || 0), 0);
+    return orders.reduce((acc, order) => {
+      const total = parseFloat(order.total) || 0;
+      if (order.payment === "Paid" && order.status !== "Cancelled") {
+        return acc + total;
+      }
+      return acc;
+    }, 0);
   }, [orders]);
+
+  const currentOrdersCount = orders.length;
+  const currentProductsCount = products.length;
+  const currentUsersCount = users.length;
+
+  const revenueChange = useMemo(
+    () => calculateChange(totalRevenue, previousRevenue),
+    [totalRevenue, previousRevenue]
+  );
+  const orderChange = useMemo(
+    () => calculateChange(currentOrdersCount, previousOrdersCount),
+    [currentOrdersCount, previousOrdersCount]
+  );
+  const productChange = useMemo(
+    () => calculateChange(currentProductsCount, previousProductsCount),
+    [currentProductsCount, previousProductsCount]
+  );
+  const userChange = useMemo(
+    () => calculateChange(currentUsersCount, previousUsersCount),
+    [currentUsersCount, previousUsersCount]
+  );
 
   const stats = [
     {
@@ -39,29 +72,29 @@ export default function StatsGridCard() {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       }),
-      change: "+20.1%", // Replace with dynamic comparison logic if available
-      changeType: "positive",
+      change: revenueChange,
+      changeType: parseFloat(revenueChange) >= 0 ? "positive" : "negative",
       icon: IndianRupee,
     },
     {
       title: "Orders",
-      value: orders?.length || 0,
-      change: "+12.5%", // Replace with dynamic comparison logic if available
-      changeType: "positive",
+      value: currentOrdersCount,
+      change: orderChange,
+      changeType: parseFloat(orderChange) >= 0 ? "positive" : "negative",
       icon: ShoppingCart,
     },
     {
       title: "Products",
-      value: products?.length || 0,
-      change: "+3.2%", // Replace with dynamic comparison logic if available
-      changeType: "positive",
+      value: currentProductsCount,
+      change: productChange,
+      changeType: parseFloat(productChange) >= 0 ? "positive" : "negative",
       icon: Package2,
     },
     {
       title: "Active Users",
-      value: data?.length || 0,
-      change: "+8.1%", // Replace with dynamic comparison logic if available
-      changeType: "positive",
+      value: currentUsersCount,
+      change: userChange,
+      changeType: parseFloat(userChange) >= 0 ? "positive" : "negative",
       icon: Users,
     },
   ];
