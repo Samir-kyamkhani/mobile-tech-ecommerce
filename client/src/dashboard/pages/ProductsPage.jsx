@@ -8,18 +8,27 @@ import {
   getAllProducts,
   updateProduct,
 } from "../../redux/slices/productSlice";
+import { getAllCategories } from "../../redux/slices/categorySlice";
 
 const ProductsPage = () => {
   const dispatch = useDispatch();
   const productState = useSelector((state) => state.product);
   const products = productState?.products || [];
+  const categoryState = useSelector((state) => state.category);
+  const categories = categoryState?.categories || [];
 
   const [showForm, setShowForm] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
 
+  // 🔍 Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedStatus, setSelectedStatus] = useState("All Status");
+
   useEffect(() => {
     dispatch(getAllProducts());
-  }, [dispatch, productState.changed]);
+    dispatch(getAllCategories());
+  }, [dispatch, productState.changed, categoryState.changed]);
 
   const handleAddOrUpdate = (product) => {
     if (editProduct) {
@@ -54,6 +63,26 @@ const ProductsPage = () => {
     }
   };
 
+  const filteredProducts = products.filter((product) => {
+    const nameMatch = product?.name
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const categoryMatch =
+      selectedCategory === "All Categories" ||
+      product?.category?.name === selectedCategory;
+
+    const statusMatch =
+      selectedStatus === "All Status" ||
+      (selectedStatus === "Out of Stock"
+        ? product.stock === 0
+        : selectedStatus === "Active"
+        ? product.stock > 0 && product.status === "Active"
+        : product.status === selectedStatus);
+
+    return nameMatch && categoryMatch && statusMatch;
+  });
+
   return (
     <div className="p-4 space-y-6">
       {/* Header */}
@@ -82,16 +111,29 @@ const ProductsPage = () => {
             <input
               type="text"
               placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
-          <select className="px-3 py-2 border border-gray-300 rounded-md">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md"
+          >
             <option>All Categories</option>
-            <option>Electronics</option>
-            <option>Clothing</option>
-            <option>Footwear</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.name}>
+                {category.name}
+              </option>
+            ))}
           </select>
-          <select className="px-3 py-2 border border-gray-300 rounded-md">
+
+          <select
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md"
+          >
             <option>All Status</option>
             <option>Active</option>
             <option>Out of Stock</option>
@@ -130,7 +172,7 @@ const ProductsPage = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {products.length === 0 ? (
+              {filteredProducts.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
@@ -140,7 +182,7 @@ const ProductsPage = () => {
                   </td>
                 </tr>
               ) : (
-                products.map((product) => {
+                filteredProducts.map((product) => {
                   if (!product) return null;
                   return (
                     <tr key={product.id} className="hover:bg-gray-50">
@@ -202,10 +244,15 @@ const ProductsPage = () => {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                            product?.status
-                          )}`}
+                            product?.stock === 0
+                              ? "Out of Stock"
+                              : product?.status
+                          )}
+`}
                         >
-                          {product?.status || "Draft"}
+                          {product?.stock === 0
+                            ? "Out of Stock"
+                            : product?.status || "Draft"}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm font-medium">
@@ -238,12 +285,12 @@ const ProductsPage = () => {
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900">Products</h3>
         </div>
-        {products.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <p className="px-6 py-4 text-center text-gray-500">
             No Products found.
           </p>
         ) : (
-          products.map((product) => {
+          filteredProducts.map((product) => {
             if (!product) return null;
             return (
               <div
@@ -289,10 +336,13 @@ const ProductsPage = () => {
 
                 <span
                   className={`text-xs font-medium px-2 py-1 rounded-full ${getStatusColor(
-                    product?.status
-                  )}`}
+                    product?.stock === 0 ? "Out of Stock" : product?.status
+                  )}
+`}
                 >
-                  {product?.status || "Draft"}
+                  {product?.stock === 0
+                    ? "Out of Stock"
+                    : product?.status || "Draft"}
                 </span>
                 <div className="text-sm text-gray-500 mb-1">
                   <strong>Category:</strong>{" "}

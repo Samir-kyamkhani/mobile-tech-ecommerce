@@ -10,16 +10,21 @@ export const getAllOrders = asyncHandler(async (req, res) => {
       customer: true,
       items: {
         include: {
-          product: true,
+          product: {
+            include: {
+              images: true, // include product images if needed
+              category: true, // include product category if needed
+            },
+          },
         },
       },
+      shipping: true, // include shipping info if you want
     },
   });
 
   return res.status(200).json(new ApiResponse(200, "Orders fetched", orders));
 });
 
-// GET order by ID
 export const getOrderById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -29,9 +34,15 @@ export const getOrderById = asyncHandler(async (req, res) => {
       customer: true,
       items: {
         include: {
-          product: true,
+          product: {
+            include: {
+              images: true,
+              category: true,
+            },
+          },
         },
       },
+      shipping: true,
     },
   });
 
@@ -54,10 +65,32 @@ export const createOrder = asyncHandler(async (req, res) => {
     return ApiError.send(res, 400, "Missing required fields.");
   }
 
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
+  // Fetch products to validate stock and price
+  const productIds = items.map((item) => item.id);
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+  });
+
+  if (products.length !== items.length) {
+    return ApiError.send(res, 400, "Some products are invalid.");
+  }
+
+  // Check stock availability and calculate total
+  let total = 0;
+  for (const item of items) {
+    const product = products.find((p) => p.id === item.id);
+    if (!product) {
+      return ApiError.send(res, 400, `Product ${item.id} not found.`);
+    }
+    if (product.stock < item.quantity) {
+      return ApiError.send(
+        res,
+        400,
+        `Insufficient stock for product ${product.name}`,
+      );
+    }
+    total += product.price * item.quantity;
+  }
 
   const newShipping = await prisma.shippingAddress.create({
     data: {
@@ -73,26 +106,40 @@ export const createOrder = asyncHandler(async (req, res) => {
   const dueDate = new Date();
   dueDate.setDate(dueDate.getDate() + 7);
 
-  const order = await prisma.order.create({
-    data: {
-      customerid: createdby,
-      total,
-      createdby,
-      payment: "Pending",
-      shippingId: newShipping.id,
-      duedate: dueDate,
-      items: {
-        create: items.map((item) => ({
-          productid: item.id,
-          quantity: item.quantity,
-          price: item.price,
-        })),
+  const order = await prisma.$transaction(async (prisma) => {
+    const orderCreated = await prisma.order.create({
+      data: {
+        customerid: createdby,
+        total,
+        createdby,
+        payment: "Pending",
+        shippingId: newShipping.id,
+        duedate: dueDate,
+        items: {
+          create: items.map((item) => ({
+            productid: item.id,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
       },
-    },
-    include: {
-      items: true,
-      shipping: true,
-    },
+      include: {
+        items: true,
+        shipping: true,
+      },
+    });
+
+    // Update stock
+    for (const item of items) {
+      await prisma.product.update({
+        where: { id: item.id },
+        data: {
+          stock: { decrement: item.quantity },
+        },
+      });
+    }
+
+    return orderCreated;
   });
 
   return res

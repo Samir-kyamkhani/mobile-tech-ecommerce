@@ -84,6 +84,7 @@ export const getAllOrders = () => async (dispatch) => {
    dispatch(orderFail({ message: handleError(error), showToast: false }));
   }
 };
+
 export const updateOrder =
   ({ id, updatedData }) =>
   async (dispatch) => {

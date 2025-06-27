@@ -25,7 +25,7 @@ const Dashboard = () => {
 
       return {
         id: order.id,
-        productImg: product.image || null,
+        productImg: product.images?.[0]?.url || null,
         productName: product.name || "N/A",
         customer: customer.name || "N/A",
         email: customer.email || "N/A",
@@ -178,21 +178,13 @@ const Dashboard = () => {
                             className="w-10 h-10 rounded-full object-cover mr-3"
                             onError={(e) => {
                               e.currentTarget.style.display = "none";
-                              if (e.currentTarget.nextSibling) {
-                                e.currentTarget.nextSibling.style.display =
-                                  "flex";
-                              }
                             }}
                           />
-                        ) : null}
-                        <div
-                          className="w-10 h-10 rounded-full bg-gray-200 mr-3 items-center justify-center text-sm text-gray-500"
-                          style={{
-                            display: order.productImg ? "none" : "flex",
-                          }}
-                        >
-                          N/A
-                        </div>
+                        ) : (
+                          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-sm text-gray-500">
+                            N/A
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm">{order.productName}</td>
@@ -301,18 +293,14 @@ const Dashboard = () => {
                         src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${
                           order.productImg
                         }`}
-                        alt={`${order.productName} image`}
-                        className="w-14 h-14 rounded-full object-cover mr-3"
+                        alt={order.productName}
+                        className="w-10 h-10 rounded-full object-cover mr-3"
                         onError={(e) => {
-                          e.currentTarget.onerror = null;
                           e.currentTarget.style.display = "none";
-                          if (e.currentTarget.nextSibling) {
-                            e.currentTarget.nextSibling.style.display = "flex";
-                          }
                         }}
                       />
                     ) : (
-                      <div className="w-14 h-14 rounded-full bg-gray-200 mr-3 items-center justify-center text-sm text-gray-500 flex">
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-sm text-gray-500">
                         N/A
                       </div>
                     )}

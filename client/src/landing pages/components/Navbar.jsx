@@ -1,37 +1,56 @@
 import { Menu, Search, ShoppingCart, X, User } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
+import { getAllProducts } from "../../redux/slices/productSlice";
 
 export default function Navbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+  const products = useSelector((state) => state.product.products || []);
   const { user } = useSelector((state) => state?.auth);
   const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    dispatch(getAllProducts());
+  }, [dispatch]);
 
   useEffect(() => {
     const updateCount = () => {
       const storedItems = JSON.parse(localStorage.getItem("cart")) || [];
       setCount(storedItems.length);
     };
-
-    // Initial count load
     updateCount();
-
-    // Listen for custom event
     window.addEventListener("cartUpdated", updateCount);
-
-    // Cleanup listener on unmount
-    return () => {
-      window.removeEventListener("cartUpdated", updateCount);
-    };
+    return () => window.removeEventListener("cartUpdated", updateCount);
   }, []);
+
+  // Live filter logic
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredProducts([]);
+    } else {
+      const filtered = products.filter((product) =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredProducts(filtered.slice(0, 5)); // Limit to 5 suggestions
+    }
+  }, [searchTerm, products]);
+
+  const handleSelectProduct = (id) => {
+    setSearchTerm("");
+    setFilteredProducts([]);
+    navigate(`/shop-product/${id}`);
+  };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 relative">
           <div className="flex items-center">
             <button
               className="md:hidden p-2"
@@ -48,14 +67,15 @@ export default function Navbar() {
             </NavLink>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* Navigation Links */}
           <nav className="hidden md:flex space-x-8">
             <NavLink
               to="/"
               end
               className={({ isActive }) =>
-                (isActive ? "text-blue-600" : "text-gray-700") +
-                " hover:text-blue-600"
+                `${
+                  isActive ? "text-blue-600" : "text-gray-700"
+                } hover:text-blue-600`
               }
             >
               Home
@@ -63,8 +83,9 @@ export default function Navbar() {
             <NavLink
               to="/shop"
               className={({ isActive }) =>
-                (isActive ? "text-blue-600" : "text-gray-700") +
-                " hover:text-blue-600"
+                `${
+                  isActive ? "text-blue-600" : "text-gray-700"
+                } hover:text-blue-600`
               }
             >
               Shop
@@ -72,30 +93,53 @@ export default function Navbar() {
             <NavLink
               to="/support"
               className={({ isActive }) =>
-                (isActive ? "text-blue-600" : "text-gray-700") +
-                " hover:text-blue-600"
+                `${
+                  isActive ? "text-blue-600" : "text-gray-700"
+                } hover:text-blue-600`
               }
             >
               Support
             </NavLink>
           </nav>
 
+          {/* Search + Cart + Login */}
           <div className="flex items-center space-x-4">
-            <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2">
-              <Search size={20} className="text-gray-400 mr-2" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="bg-transparent border-none outline-none w-64"
-              />
+            {/* Desktop Search */}
+            <div className="hidden md:block relative">
+              <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
+                <Search size={20} className="text-gray-400 mr-2" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="bg-transparent border-none outline-none w-64"
+                />
+              </div>
+
+              {/* Live Search Dropdown */}
+              {filteredProducts.length > 0 && (
+                <div className="absolute bg-white shadow-lg mt-1 rounded-lg w-full z-50">
+                  {filteredProducts.map((product) => (
+                    <div
+                      key={product.id}
+                      onClick={() => handleSelectProduct(product.id)}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      {product.name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
+            {/* Cart */}
             <button
               className="p-2 text-gray-700 hover:text-blue-600"
               onClick={() => navigate("/checkout")}
             >
               <div className="relative">
-                <ShoppingCart className="text-gray-700" size={24} />
+                <ShoppingCart size={24} />
                 {count > 0 && (
                   <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center ring-2 ring-white">
                     {count}
@@ -104,26 +148,18 @@ export default function Navbar() {
               </div>
             </button>
 
+            {/* Login/Profile */}
             {user ? (
-              user.role === "Admin" ? (
-                <NavLink
-                  to="/dashboard"
-                  className="p-2 text-gray-700 hover:text-blue-600"
-                >
-                  <User className="w-8 h-8 p-1 text-white bg-gray-700 rounded-full" />
-                </NavLink>
-              ) : user.role === "Customer" ? (
-                <NavLink
-                  to="/profile"
-                  className="p-2 text-gray-700 hover:text-blue-600"
-                >
-                  <User className="w-8 h-8 p-1 text-white bg-gray-700 rounded-full" />
-                </NavLink>
-              ) : null
+              <NavLink
+                to={user.role === "Admin" ? "/dashboard" : "/profile"}
+                className="p-2 text-gray-700 hover:text-blue-600"
+              >
+                <User className="w-8 h-8 p-1 text-white bg-gray-700 rounded-full" />
+              </NavLink>
             ) : (
               <NavLink
                 to="/login"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 focus:ring-4 transition-all duration-200 flex items-center justify-center group disabled:opacity-70 disabled:cursor-not-allowed"
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700"
               >
                 Login
               </NavLink>
@@ -135,15 +171,40 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {showMobileMenu && (
         <div className="md:hidden bg-white border-t">
-          <div className="px-4 py-2 space-y-2">
-            <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2 mb-4">
-              <Search size={20} className="text-gray-400 mr-2" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                className="bg-transparent border-none outline-none w-full"
-              />
+          <div className="px-4 py-2 space-y-2 relative">
+            {/* ✅ Mobile Search Bar */}
+            <div className="relative">
+              <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
+                <Search size={20} className="text-gray-400 mr-2" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="bg-transparent border-none outline-none w-full"
+                />
+              </div>
+
+              {/* ✅ Mobile Live Search Dropdown */}
+              {filteredProducts.length > 0 && (
+                <div className="absolute bg-white shadow-lg mt-1 rounded-lg w-full z-50 max-h-60 overflow-y-auto">
+                  {filteredProducts.map((product) => (
+                    <div
+                      key={product.id}
+                      onClick={() => {
+                        handleSelectProduct(product.id);
+                        setShowMobileMenu(false); // Close menu after selecting
+                      }}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    >
+                      {product.name}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+
+            {/* Navigation Links */}
             <NavLink
               to="/"
               end
@@ -176,6 +237,7 @@ export default function Navbar() {
               Support
             </NavLink>
 
+            {/* Profile or Login */}
             {user ? (
               <NavLink
                 to="/profile"
@@ -189,7 +251,7 @@ export default function Navbar() {
               <NavLink
                 to="/login"
                 onClick={() => setShowMobileMenu(false)}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 focus:ring-4 transition-all duration-200 flex items-center justify-center"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 flex items-center justify-center"
               >
                 Login
               </NavLink>

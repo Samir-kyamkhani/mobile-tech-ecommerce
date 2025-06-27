@@ -86,11 +86,17 @@ const ProductCard = ({ product, addToCart, cart = [] }) => {
             <button
               type="button"
               onClick={() => addToCart(product)}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              disabled={!product.stock}
+              className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                product.stock
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
             >
-              Add to Cart
+              {product.stock ? "Add to Cart" : "Out of Stock"}
             </button>
           )}
+
           <Link
             to={`/shop-product/${product.id}`}
             className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"

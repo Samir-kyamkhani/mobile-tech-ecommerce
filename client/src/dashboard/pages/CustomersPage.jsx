@@ -32,6 +32,17 @@ const CustomersPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editCustomer, setEditCustomer] = useState(null);
 
+  // Filter states
+  const [searchText, setSearchText] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All Status");
+  const [locationFilter, setLocationFilter] = useState("All Locations");
+
+  // Dynamically generate unique locations for filter dropdown
+  const uniqueLocations = [
+    "All Locations",
+    ...Array.from(new Set(customers.map((c) => c.location))).filter(Boolean),
+  ];
+
   const handleAddOrUpdate = (customerData) => {
     if (editCustomer) {
       dispatch(
@@ -73,6 +84,33 @@ const CustomersPage = () => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  // Apply filters
+  const filteredCustomers = customers.filter((customer) => {
+    // Defensive check in case some fields are missing
+    const name = customer.name || "";
+    const email = customer.email || "";
+    const phone = customer.phone || "";
+    const location = customer.location || "";
+    const status = customer.status || "";
+
+    // Search text matches name, email, phone, or location (case-insensitive)
+    const matchesSearch =
+      name.toLowerCase().includes(searchText.toLowerCase()) ||
+      email.toLowerCase().includes(searchText.toLowerCase()) ||
+      phone.toLowerCase().includes(searchText.toLowerCase()) ||
+      location.toLowerCase().includes(searchText.toLowerCase());
+
+    // Status filter
+    const matchesStatus =
+      statusFilter === "All Status" || status === statusFilter;
+
+    // Location filter
+    const matchesLocation =
+      locationFilter === "All Locations" || location === locationFilter;
+
+    return matchesSearch && matchesStatus && matchesLocation;
+  });
 
   return (
     <div className="p-4 space-y-6">
@@ -151,19 +189,41 @@ const CustomersPage = () => {
           <input
             type="text"
             placeholder="Search customers..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
-          <select className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
             <option>All Status</option>
             <option>Active</option>
             <option>Inactive</option>
           </select>
-          <select className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <option>All Locations</option>
-            <option>New York</option>
-            <option>Los Angeles</option>
-            <option>Chicago</option>
+          <select
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            {uniqueLocations.map((loc) => (
+              <option key={loc} value={loc}>
+                {loc}
+              </option>
+            ))}
           </select>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchText("");
+              setStatusFilter("All Status");
+              setLocationFilter("All Locations");
+            }}
+            className="px-4 py-2 border border-gray-300 rounded-md bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          >
+            Reset Filters
+          </button>
         </div>
       </div>
 
@@ -194,7 +254,7 @@ const CustomersPage = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {customers.length === 0 ? (
+              {filteredCustomers.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
@@ -204,7 +264,7 @@ const CustomersPage = () => {
                   </td>
                 </tr>
               ) : (
-                customers.map((customer) => (
+                filteredCustomers.map((customer) => (
                   <tr key={customer.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap flex items-center">
                       {customer.avatar ? (
@@ -281,12 +341,12 @@ const CustomersPage = () => {
       {/* Mobile List */}
       <div className="block md:hidden space-y-4 bg-white shadow rounded-lg border border-gray-200">
         <div className="block md:hidden my-4">
-          {customers.length === 0 ? (
+          {filteredCustomers.length === 0 ? (
             <p className="px-6 py-4 text-center text-gray-500">
               No customers found.
             </p>
           ) : (
-            customers.map((customer) => (
+            filteredCustomers.map((customer) => (
               <div
                 key={customer.id}
                 className="bg-white mx-4 mb-4 rounded-lg shadow p-4 border border-gray-200"
@@ -337,19 +397,19 @@ const CustomersPage = () => {
                 </div>
                 <div className="flex flex-row-reverse gap-4">
                   <button
-                    onClick={() => handleDelete(customer.id)}
-                    className="text-red-600 font-medium hover:text-red-900"
+                    onClick={() => handleEdit(customer)}
+                    className="text-green-600 hover:text-green-900"
                   >
-                    delete
+                    <Edit2 className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => handleEdit(customer)}
-                    className="text-green-600 font-medium hover:text-green-900"
+                    onClick={() => handleDelete(customer.id)}
+                    className="text-red-600 hover:text-red-900"
                   >
-                    edit
+                    <Trash2 className="w-5 h-5" />
                   </button>
-                  <button className="text-blue-600 font-medium hover:text-blue-900">
-                    view
+                  <button className="text-blue-600 hover:text-blue-900">
+                    <Eye className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -361,13 +421,12 @@ const CustomersPage = () => {
       {/* Form Modal */}
       {showForm && (
         <AddCustomersForm
-          isEdit={!!editCustomer}
-          customerData={editCustomer}
-          onSubmit={handleAddOrUpdate}
           onClose={() => {
             setShowForm(false);
             setEditCustomer(null);
           }}
+          onSubmit={handleAddOrUpdate}
+          initialData={editCustomer}
         />
       )}
     </div>
