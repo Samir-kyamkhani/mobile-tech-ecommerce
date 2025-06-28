@@ -239,17 +239,21 @@ export default function Navbar() {
 
               {/* Mobile Live Search Dropdown */}
               {filteredProducts.length > 0 && (
-                <div className="absolute bg-white shadow-lg mt-1 rounded-lg w-full z-50 max-h-60 overflow-y-auto">
+                <div className="absolute bg-white shadow-lg mt-1 rounded-lg w-full z-50">
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
-                      onClick={() => {
-                        handleSelectProduct(product.id);
-                        setShowMobileMenu(false); // close mobile menu
-                      }}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleSelectProduct(product.id)}
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
                     >
-                      {product.name}
+                      <img
+                        src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${
+                          product.images[0].url
+                        }`}
+                        alt={product.name}
+                        className="w-12 h-12 object-cover rounded mr-2"
+                      />
+                      <span>{product.name}</span>
                     </div>
                   ))}
                 </div>
