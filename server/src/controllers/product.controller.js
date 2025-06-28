@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const createProduct = asyncHandler(async (req, res) => {
-  const { name, categoryid, price, stock, status } = req.body;
+  const { name, description, categoryid, price, stock, status } = req.body;
   const { id: createdby, role } = req.user;
   const imagePaths =
     req.files?.map((file) => `/uploads/${file.filename}`) || [];
@@ -22,7 +22,15 @@ const createProduct = asyncHandler(async (req, res) => {
     return ApiError.send(res, 403, "Only admins can create a product.");
   }
 
-  if (!name || !categoryid || !price || !stock || !status || !createdby) {
+  if (
+    !name ||
+    !description ||
+    !categoryid ||
+    !price ||
+    !stock ||
+    !status ||
+    !createdby
+  ) {
     return ApiError.send(res, 400, "All required fields must be provided.");
   }
 
@@ -53,6 +61,7 @@ const createProduct = asyncHandler(async (req, res) => {
   const product = await prisma.product.create({
     data: {
       name: name.trim(),
+      description,
       categoryid,
       price: numericPrice,
       stock: numericStock,
@@ -100,7 +109,7 @@ const getProductById = asyncHandler(async (req, res) => {
 
 const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { name, categoryid, price, stock, status } = req.body;
+  const { name, description, categoryid, price, stock, status } = req.body;
 
   if (req.user?.role !== "Admin") {
     return ApiError.send(res, 403, "Only admins can update products.");
@@ -160,6 +169,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     where: { id },
     data: {
       name: name?.trim() ?? existingProduct.name,
+      description: description ?? existingProduct.description,
       categoryid: categoryid ?? existingProduct.categoryid,
       price: numericPrice,
       stock: numericStock,

@@ -7,7 +7,9 @@ import Features from "../Sections/Features";
 const HomePage = () => {
   return (
     <div>
-      <HeroSection />
+      <div className="px-4 sm:px-6">
+        <HeroSection />
+      </div>
       <FeaturedCategories />
       <FeaturedProducts />
       <Features />

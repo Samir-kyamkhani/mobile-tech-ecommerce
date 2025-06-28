@@ -43,17 +43,18 @@ model Category {
 }
 
 model Product {
-  id         String         @id @default(uuid())
-  name       String
-  category   Category       @relation(fields: [categoryid], references: [id])
-  categoryid String
-  price      Decimal
-  stock      Int
-  status     ProductStatus
-  images     ProductImage[] // Relation
-  createdby  String
-  creator    User           @relation("CreatedProducts", fields: [createdby], references: [id])
-  orderItems OrderItem[]
+  id          String         @id @default(uuid())
+  name        String
+  description String         @default("")
+  category    Category       @relation(fields: [categoryid], references: [id])
+  categoryid  String
+  price       Decimal
+  stock       Int
+  status      ProductStatus
+  images      ProductImage[] // Relation
+  createdby   String
+  creator     User           @relation("CreatedProducts", fields: [createdby], references: [id])
+  orderItems  OrderItem[]
 }
 
 model ProductImage {

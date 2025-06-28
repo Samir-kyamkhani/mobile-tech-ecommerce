@@ -59,7 +59,7 @@ export default function ProductDetailsPage() {
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setCart(updatedCart);
-    setAddedToCart(true); // ✅ update state
+    setAddedToCart(true);
     window.dispatchEvent(new Event("cartUpdated"));
   };
 
@@ -74,7 +74,7 @@ export default function ProductDetailsPage() {
 
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setCart(updatedCart);
-    navigate("/checkout"); // Update this path to match your route for checkout
+    navigate("/checkout");
   };
 
   const renderStars = (rating) =>
@@ -95,7 +95,6 @@ export default function ProductDetailsPage() {
   if (!product) return <div>Product not found.</div>;
 
   const baseUrl = import.meta.env.VITE_API_BASE_URL_For_Image;
-
   const currentImage = product.images?.[selectedImage]?.url;
 
   return (
@@ -139,7 +138,7 @@ export default function ProductDetailsPage() {
                     key={index}
                     onClick={() => {
                       setSelectedImage(index);
-                      setImageError(false); // reset error when switching
+                      setImageError(false);
                     }}
                     className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
                       selectedImage === index
@@ -203,19 +202,12 @@ export default function ProductDetailsPage() {
                           Out of Stock
                         </span>
                       </div>
-
-                      {!product.stock && (
-                        <p className="text-sm text-red-500 mt-1">
-                          This product is currently out of stock.
-                        </p>
-                      )}
+                      <p className="text-sm text-red-500 mt-1">
+                        This product is currently out of stock.
+                      </p>
                     </div>
                   )}
                 </div>
-
-                <p className="text-gray-600 leading-relaxed">
-                  {product.description || "No description available."}
-                </p>
               </div>
 
               <div className="flex items-center gap-4 mb-6">
@@ -246,11 +238,11 @@ export default function ProductDetailsPage() {
                   onClick={handleBuyNow}
                   disabled={!product.stock}
                   className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 transition-transform
-    ${
-      product.stock
-        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-[1.02]"
-        : "bg-gray-300 text-white cursor-not-allowed"
-    }`}
+                    ${
+                      product.stock
+                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-[1.02]"
+                        : "bg-gray-300 text-white cursor-not-allowed"
+                    }`}
                 >
                   <Zap className="w-5 h-5" />
                   Buy Now
@@ -269,11 +261,11 @@ export default function ProductDetailsPage() {
                     onClick={handleAddToCart}
                     disabled={!product.stock}
                     className={`w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2
-      ${
-        product.stock
-          ? "bg-white border-2 border-gray-300 text-gray-900 hover:border-gray-400 hover:bg-gray-50"
-          : "bg-gray-100 border-2 border-gray-300 text-gray-400 cursor-not-allowed"
-      }`}
+                      ${
+                        product.stock
+                          ? "bg-white border-2 border-gray-300 text-gray-900 hover:border-gray-400 hover:bg-gray-50"
+                          : "bg-gray-100 border-2 border-gray-300 text-gray-400 cursor-not-allowed"
+                      }`}
                   >
                     <ShoppingCart className="w-5 h-5" />
                     Add to Cart
@@ -281,7 +273,7 @@ export default function ProductDetailsPage() {
                 )}
               </div>
 
-              <div className="mt-6 b pt-6 border-t border-gray-200">
+              <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <Truck className="w-4 h-4 text-green-500" />
@@ -293,6 +285,24 @@ export default function ProductDetailsPage() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Product Description at Bottom */}
+        <div className="mt-10">
+          <div className="bg-white p-6 rounded-2xl shadow-sm">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Product Description
+            </h2>
+            {product.description ? (
+              <ul className="list-disc list-inside space-y-2 text-gray-700">
+                {product.description.split("\n").map((point, index) => (
+                  <li key={index}>{point.trim()}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-gray-500">No description available.</p>
+            )}
           </div>
         </div>
       </div>

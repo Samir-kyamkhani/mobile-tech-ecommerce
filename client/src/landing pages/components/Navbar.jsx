@@ -1,13 +1,15 @@
 import { Menu, Search, ShoppingCart, X, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { getAllProducts } from "../../redux/slices/productSlice";
+import { getAllCategories } from "../../redux/slices/categorySlice"; // Import this if you use it
 
 export default function Navbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const navigate = useNavigate();
 
   const dispatch = useDispatch();
@@ -15,9 +17,17 @@ export default function Navbar() {
   const { user } = useSelector((state) => state?.auth);
   const [count, setCount] = useState(0);
 
+  // Use categories from Redux slice
+  const categories = useSelector((state) => state.category?.categories || []);
+  const categoryChanged = useSelector((state) => state.category?.changed);
+
   useEffect(() => {
     dispatch(getAllProducts());
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(getAllCategories());
+  }, [dispatch, categoryChanged]);
 
   useEffect(() => {
     const updateCount = () => {
@@ -29,7 +39,7 @@ export default function Navbar() {
     return () => window.removeEventListener("cartUpdated", updateCount);
   }, []);
 
-  // Live filter logic
+  // Live search filter
   useEffect(() => {
     if (searchTerm.trim() === "") {
       setFilteredProducts([]);
@@ -37,7 +47,7 @@ export default function Navbar() {
       const filtered = products.filter((product) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredProducts(filtered.slice(0, 5)); // Limit to 5 suggestions
+      setFilteredProducts(filtered.slice(0, 5)); // limit to 5
     }
   }, [searchTerm, products]);
 
@@ -68,7 +78,7 @@ export default function Navbar() {
           </div>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex space-x-8 relative">
             <NavLink
               to="/"
               end
@@ -80,16 +90,51 @@ export default function Navbar() {
             >
               Home
             </NavLink>
-            <NavLink
-              to="/shop"
-              className={({ isActive }) =>
-                `${
-                  isActive ? "text-blue-600" : "text-gray-700"
-                } hover:text-blue-600`
-              }
+
+            {/* Shop with hover dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setShowCategoryDropdown(true)}
+              onMouseLeave={() => setShowCategoryDropdown(false)}
             >
-              Shop
-            </NavLink>
+              <NavLink
+                to="/shop"
+                className={({ isActive }) =>
+                  `${
+                    isActive ? "text-blue-600" : "text-gray-700"
+                  } hover:text-blue-600 cursor-pointer`
+                }
+              >
+                Shop
+              </NavLink>
+
+              {showCategoryDropdown && categories.length > 0 && (
+                <div
+                  className="absolute left-1/2 right-1/2 top-full mt-2 border border-gray-200 min-w-[50rem] max-w-[50rem] bg-white shadow-lg rounded-lg p-4 grid grid-cols-2 gap-4 z-50
+               -translate-x-1/2"
+                >
+                  {categories.map((category) => (
+                    <Link
+                      to={`/shop/${category.id}`}
+                      key={category.id}
+                      className="cursor-pointer hover:bg-gray-100 p-2 rounded flex items-center space-x-2"
+                    >
+                      <img
+                        src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${
+                          category.image
+                        }`}
+                        alt={category.name}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                      <span className="text-gray-700 font-medium">
+                        {category.name}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <NavLink
               to="/support"
               className={({ isActive }) =>
@@ -172,7 +217,7 @@ export default function Navbar() {
       {showMobileMenu && (
         <div className="md:hidden bg-white border-t">
           <div className="px-4 py-2 space-y-2 relative">
-            {/* ✅ Mobile Search Bar */}
+            {/* Mobile Search */}
             <div className="relative">
               <div className="flex items-center bg-gray-100 rounded-lg px-3 py-2">
                 <Search size={20} className="text-gray-400 mr-2" />
@@ -185,7 +230,7 @@ export default function Navbar() {
                 />
               </div>
 
-              {/* ✅ Mobile Live Search Dropdown */}
+              {/* Mobile Live Search Dropdown */}
               {filteredProducts.length > 0 && (
                 <div className="absolute bg-white shadow-lg mt-1 rounded-lg w-full z-50 max-h-60 overflow-y-auto">
                   {filteredProducts.map((product) => (
@@ -193,7 +238,7 @@ export default function Navbar() {
                       key={product.id}
                       onClick={() => {
                         handleSelectProduct(product.id);
-                        setShowMobileMenu(false); // Close menu after selecting
+                        setShowMobileMenu(false); // close mobile menu
                       }}
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                     >
@@ -204,7 +249,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Navigation Links */}
+            {/* Mobile nav links */}
             <NavLink
               to="/"
               end
@@ -236,26 +281,6 @@ export default function Navbar() {
             >
               Support
             </NavLink>
-
-            {/* Profile or Login */}
-            {user ? (
-              <NavLink
-                to="/profile"
-                onClick={() => setShowMobileMenu(false)}
-                className="w-full flex items-center space-x-2 py-3 px-4 text-gray-700 hover:text-blue-600"
-              >
-                <User className="w-8 h-8 p-1 text-white bg-gray-700 rounded-full" />
-                <span>Profile</span>
-              </NavLink>
-            ) : (
-              <NavLink
-                to="/login"
-                onClick={() => setShowMobileMenu(false)}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 flex items-center justify-center"
-              >
-                Login
-              </NavLink>
-            )}
           </div>
         </div>
       )}

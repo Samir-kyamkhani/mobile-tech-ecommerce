@@ -21,6 +21,7 @@ export default function AddProductsForm({
   const [form, setForm] = useState({
     id: productData?.id || null,
     name: productData?.name || "",
+    description: productData?.description || "",
     categoryId: productData?.category || "",
     price: productData?.price?.replace("$", "") || "",
     stock: productData?.stock || 0,
@@ -64,6 +65,7 @@ export default function AddProductsForm({
 
     const formData = new FormData();
     formData.append("name", payload.name);
+    formData.append("description", payload.description);
     formData.append("categoryid", payload.categoryId);
     formData.append("price", payload.price);
     formData.append("stock", payload.stock);
@@ -117,6 +119,16 @@ export default function AddProductsForm({
               onChange={handleChange}
               required
               placeholder="MacBook Air"
+            />
+
+            <InputField
+              label="Product Description"
+              name="description"
+              type="textarea"
+              value={form.description}
+              onChange={handleChange}
+              required
+              placeholder="Description..."
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -122,10 +122,7 @@ const ShopPage = () => {
 
   return (
     <div className="px-4 sm:px-6">
-      <div className="-mx-6">
-        <HeroSection />
-      </div>
-
+      <HeroSection />
       <div className="max-w-[90rem] mx-auto lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
         {/* Filters Sidebar */}
         <aside className="w-full lg:w-64 mb-4 lg:mb-0">
