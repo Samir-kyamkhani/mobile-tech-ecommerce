@@ -66,7 +66,6 @@ export default function UserProfilePage() {
 
   const orderState = useSelector((state) => state.order);
   const orders = orderState?.orders || [];
-  console.log(orders);
 
   useEffect(() => {
     dispatch(getAllOrders());
