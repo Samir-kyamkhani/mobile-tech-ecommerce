@@ -164,7 +164,7 @@ export default function Navbar() {
 
               {/* Live Search Dropdown */}
               {filteredProducts.length > 0 && (
-                <div className="absolute bg-white shadow-lg mt-1 rounded-lg w-full z-50">
+                <div className="absolute border overflow-hidden border-gray-300 bg-white shadow-lg mt-1 rounded-lg w-full z-50">
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
@@ -239,7 +239,7 @@ export default function Navbar() {
 
               {/* Mobile Live Search Dropdown */}
               {filteredProducts.length > 0 && (
-                <div className="absolute bg-white shadow-lg mt-1 rounded-lg w-full z-50">
+                <div className="absolute  border overflow-hidden border-gray-300 bg-white shadow-lg mt-1 rounded-lg w-full z-50">
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
