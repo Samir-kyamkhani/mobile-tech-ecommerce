@@ -169,9 +169,16 @@ export default function Navbar() {
                     <div
                       key={product.id}
                       onClick={() => handleSelectProduct(product.id)}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
                     >
-                      {product.name}
+                      <img
+                        src={`${import.meta.env.VITE_API_BASE_URL_For_Image}${
+                          product.images[0].url
+                        }`}
+                        alt={product.name}
+                        className="w-12 h-12 object-cover rounded mr-2"
+                      />
+                      <span>{product.name}</span>
                     </div>
                   ))}
                 </div>
