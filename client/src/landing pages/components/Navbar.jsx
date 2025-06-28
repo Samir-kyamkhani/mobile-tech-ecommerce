@@ -101,8 +101,8 @@ export default function Navbar() {
                 to="/shop"
                 className={({ isActive }) =>
                   `${
-                    isActive ? "text-blue-600" : "text-gray-700"
-                  } hover:text-blue-600 cursor-pointer`
+                    isActive ? "text-blue-600 " : "text-gray-700"
+                  } hover:text-blue-600 cursor-pointer p-4`
                 }
               >
                 Shop
