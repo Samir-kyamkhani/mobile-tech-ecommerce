@@ -7,6 +7,8 @@ import {
   Users,
   X,
   LogOut,
+  Notebook,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -17,6 +19,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, path: "/dashboard" },
+    { id: "ledger", label: "Ledger", icon: Notebook, path: "/ledger" },
     {
       id: "categories",
       label: "Categories",
@@ -92,7 +95,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
                                 : "text-gray-500 group-hover:text-gray-900"
                             }`}
                           />
-                          <span className="ml-3">{item.label}</span>
+                          <span className="ml-3 capitalize">{item.label}</span>
                         </>
                       )}
                     </NavLink>

@@ -16,7 +16,6 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AddCustomersForm from "../components/Forms/AddCustomersForm";
 
-// Redux actions (make sure you add these to your slice)
 import {
   createCustomer,
   getAllCustomers,
@@ -32,12 +31,10 @@ const CustomersPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editCustomer, setEditCustomer] = useState(null);
 
-  // Filter states
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [locationFilter, setLocationFilter] = useState("All Locations");
 
-  // Dynamically generate unique locations for filter dropdown
   const uniqueLocations = [
     "All Locations",
     ...Array.from(new Set(customers.map((c) => c.location))).filter(Boolean),
@@ -85,27 +82,22 @@ const CustomersPage = () => {
     }
   };
 
-  // Apply filters
   const filteredCustomers = customers.filter((customer) => {
-    // Defensive check in case some fields are missing
     const name = customer.name || "";
     const email = customer.email || "";
     const phone = customer.phone || "";
     const location = customer.location || "";
     const status = customer.status || "";
 
-    // Search text matches name, email, phone, or location (case-insensitive)
     const matchesSearch =
       name.toLowerCase().includes(searchText.toLowerCase()) ||
       email.toLowerCase().includes(searchText.toLowerCase()) ||
       phone.toLowerCase().includes(searchText.toLowerCase()) ||
       location.toLowerCase().includes(searchText.toLowerCase());
 
-    // Status filter
     const matchesStatus =
       statusFilter === "All Status" || status === statusFilter;
 
-    // Location filter
     const matchesLocation =
       locationFilter === "All Locations" || location === locationFilter;
 
@@ -313,9 +305,6 @@ const CustomersPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
-                        <button className="text-blue-600 hover:text-blue-900">
-                          <Eye className="w-4 h-4" />
-                        </button>
                         <button
                           onClick={() => handleEdit(customer)}
                           className="text-green-600 hover:text-green-900"
@@ -407,9 +396,6 @@ const CustomersPage = () => {
                     className="text-red-600 hover:text-red-900"
                   >
                     <Trash2 className="w-5 h-5" />
-                  </button>
-                  <button className="text-blue-600 hover:text-blue-900">
-                    <Eye className="w-5 h-5" />
                   </button>
                 </div>
               </div>

@@ -8,7 +8,7 @@ import {
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../../redux/slices/productSlice";
-import { getAllUsers } from "../../redux/slices/totalUsersSlice";
+import { getAllCustomers } from "../../redux/slices/customerSlice";
 
 function calculateChange(current, previous) {
   if (previous === 0) return "0%";
@@ -27,11 +27,11 @@ export default function StatsGridCard({
   const dispatch = useDispatch();
 
   const { products = [] } = useSelector((state) => state.product);
-  const { users = [] } = useSelector((state) => state.user);
+  const { customer: users = [] } = useSelector((state) => state.customer);
 
   useEffect(() => {
     dispatch(getAllProducts());
-    dispatch(getAllUsers());
+    dispatch(getAllCustomers());
   }, [dispatch]);
 
   const totalRevenue = useMemo(() => {

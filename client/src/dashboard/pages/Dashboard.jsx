@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrders, updateOrder } from "../../redux/slices/orderSlice";
 import StatsGridCard from "../../landing pages/Sections/StatsGridCard";
+import Analytics from "../components/Analytics";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -123,6 +124,8 @@ const Dashboard = () => {
         previousUsersCount={200}
         previousRevenue={50000}
       />
+
+      <Analytics orders={orders} />
 
       {/* Recent Orders - Desktop Table */}
       <div className="hidden md:block bg-white shadow rounded-lg border border-gray-200">

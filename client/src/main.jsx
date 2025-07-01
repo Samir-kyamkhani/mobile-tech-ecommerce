@@ -27,6 +27,7 @@ import ProtectedRoute from "./layouts/ProtectedRoute.jsx";
 import ResponsiveToastContainer from "./layouts/ResponsiveToastContainer.jsx";
 import ProductDetailsPage from "./landing pages/pages/ProductDetailsPage.jsx";
 import NotFoundPage from "./landing pages/pages/NotFoundPage.jsx";
+import LedgerPage from "./dashboard/pages/LedgerPage.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -50,6 +51,7 @@ const router = createBrowserRouter(
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="ledger" element={ <LedgerPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="customers" element={<CustomersPage />} />
