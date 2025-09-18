@@ -268,7 +268,7 @@ const CheckoutPage = () => {
 
               {/* Right Column */}
               <div className="lg:col-span-4">
-                <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 lg:p-8 sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto">
+                <div className="bg-white w-fit backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 lg:p-8 sticky top-24 max-h-[calc(100vh-6rem)] overflow-y-auto">
                   <h2 className="text-2xl font-bold mb-6 text-gray-900">
                     Order Summary
                   </h2>
