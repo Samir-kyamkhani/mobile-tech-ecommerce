@@ -122,7 +122,7 @@ export default function ProductDetailsPage() {
                   <img
                     src={baseUrl + currentImage}
                     alt={product?.name || "Product"}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     onError={() => setImageError(true)}
                   />
                 ) : (

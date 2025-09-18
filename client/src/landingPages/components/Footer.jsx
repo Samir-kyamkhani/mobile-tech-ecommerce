@@ -6,7 +6,7 @@ export default function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4">MobileTech</h3>
+            <h3 className="text-xl font-bold mb-4">Shiv Dharati Ltd.</h3>
             <p className="text-gray-300 mb-4">
               Your trusted source for the latest mobile phones and accessories.
             </p>
@@ -63,7 +63,7 @@ export default function Footer() {
 
         {/* Footer Bottom */}
         <div className="border-t border-gray-800 mt-10 pt-6 text-center text-gray-300 text-sm">
-          <p>&copy; 2025 MobileTech. All rights reserved.</p>
+          <p>&copy; 2025 Shiv Dharati Ltd.. All rights reserved.</p>
         </div>
       </div>
     </footer>

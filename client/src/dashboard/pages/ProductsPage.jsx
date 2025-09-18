@@ -224,7 +224,7 @@ const ProductsPage = () => {
                           </div>
                           <div>
                             <div className="text-sm font-medium text-gray-900">
-                              {product?.name || "Unnamed"}
+                              {product?.name.slice(0, 50) || "Unnamed"}
                             </div>
                             <div className="text-sm text-gray-500">
                               ID: {product?.id || "-"}

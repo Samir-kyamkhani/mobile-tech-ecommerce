@@ -61,19 +61,23 @@ export default function Navbar() {
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 relative">
-          <div className="flex items-center">
+          <div className="flex items-center space-x-3">
+            {/* Mobile menu button */}
             <button
               className="md:hidden p-2"
               onClick={() => setShowMobileMenu(!showMobileMenu)}
+              aria-label="Toggle menu"
             >
               {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
             </button>
+
+            {/* Logo Text */}
             <NavLink
               to="/"
-              className="text-2xl font-bold text-blue-600 cursor-pointer ml-2 md:ml-0"
+              className="text-2xl font-extrabold tracking-tight text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
               onClick={() => setShowMobileMenu(false)}
             >
-              MobileTech
+              Shiv Dharati Ltd.
             </NavLink>
           </div>
 
@@ -144,6 +148,16 @@ export default function Navbar() {
               }
             >
               Support
+            </NavLink>
+            <NavLink
+              to="/policy"
+              className={({ isActive }) =>
+                `${
+                  isActive ? "text-blue-600" : "text-gray-700"
+                } hover:text-blue-600`
+              }
+            >
+              Privacy Policy
             </NavLink>
           </nav>
 

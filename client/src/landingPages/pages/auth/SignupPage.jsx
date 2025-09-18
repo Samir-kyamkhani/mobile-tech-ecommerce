@@ -1,13 +1,26 @@
 import { useState, useEffect } from "react";
-import { Eye, EyeOff, Mail, Lock, ShoppingBag, ArrowRight } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  ShoppingBag,
+  Phone,
+  MapPin,
+  User,
+  ArrowRight,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../../../redux/slices/authSlice";
+import { signup } from "../../../redux/slices/authSlice"; // ✅ use signup action
 import { useLocation, useNavigate } from "react-router-dom";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
+    name: "",
+    location: "",
     email: "",
+    phone: "",
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -15,18 +28,16 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.auth);
-  console.log();
-  
-
-  const location = useLocation();
+  const locationPath = useLocation();
 
   useEffect(() => {
-    if (user?.role === "Admin" && location.pathname !== "/dashboard") {
+    // redirect after signup if user exists
+    if (user?.role === "Admin" && locationPath.pathname !== "/dashboard") {
       navigate("/dashboard");
-    } else if (user && location.pathname !== "/") {
+    } else if (user && locationPath.pathname !== "/") {
       navigate("/");
     }
-  }, [user, navigate, location.pathname]);
+  }, [user, navigate, locationPath.pathname]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -40,10 +51,10 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await dispatch(login(formData));
+      await dispatch(signup(formData));
       // navigation handled in useEffect
     } catch (err) {
-      console.error("Login failed", err);
+      console.error("Signup failed", err);
     } finally {
       setIsLoading(false);
     }
@@ -58,16 +69,60 @@ export default function LoginPage() {
             <ShoppingBag className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome Back
+            Create Account
           </h1>
-          <p className="text-gray-600">
-            Sign in to your account to continue shopping
-          </p>
+          <p className="text-gray-600">Join us and start shopping today</p>
         </div>
 
-        {/* Login Form */}
+        {/* Signup Form */}
         <div className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name */}
+            <div className="space-y-2">
+              <label
+                htmlFor="name"
+                className="text-sm font-medium text-gray-700"
+              >
+                Full Name
+              </label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white"
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Location */}
+            <div className="space-y-2">
+              <label
+                htmlFor="location"
+                className="text-sm font-medium text-gray-700"
+              >
+                Location
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white"
+                  placeholder="Enter your location"
+                  required
+                />
+              </div>
+            </div>
+
             {/* Email */}
             <div className="space-y-2">
               <label
@@ -84,8 +139,31 @@ export default function LoginPage() {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white"
                   placeholder="Enter your email"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Phone */}
+            <div className="space-y-2">
+              <label
+                htmlFor="phone"
+                className="text-sm font-medium text-gray-700"
+              >
+                Phone Number
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white"
+                  placeholder="+91 9876543210"
                   required
                 />
               </div>
@@ -107,8 +185,8 @@ export default function LoginPage() {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="w-full pl-12 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                  placeholder="Enter your password"
+                  className="w-full pl-12 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white"
+                  placeholder="Create a strong password"
                   required
                 />
                 <button
@@ -125,17 +203,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Forgot password
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
-              >
-                Forgot password?
-              </button>
-            </div> */}
-
-            {/* Sign In */}
+            {/* Sign Up */}
             <button
               type="submit"
               disabled={isLoading}
@@ -145,7 +213,7 @@ export default function LoginPage() {
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
-                  Sign In
+                  Create Account
                   <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
@@ -155,14 +223,13 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-6">
-          <p className="text-xs text-gray-500">
-            By signing in, you agree to our{" "}
-            <button className="text-blue-600 hover:underline">
-              Terms of Service
-            </button>{" "}
-            and{" "}
-            <button className="text-blue-600 hover:underline">
-              Privacy Policy
+          <p className="text-sm text-gray-500">
+            Already have an account?{" "}
+            <button
+              onClick={() => navigate("/login")}
+              className="text-blue-600 hover:underline"
+            >
+              Sign in
             </button>
           </p>
         </div>

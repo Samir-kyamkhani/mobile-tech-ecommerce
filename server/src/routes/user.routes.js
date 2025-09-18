@@ -5,6 +5,7 @@ import {
   login,
   logout,
   resetPassword,
+  signup,
   updateAdmin,
 } from "../controllers/user.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
@@ -12,6 +13,7 @@ import { authMiddleware } from "../middlewares/auth.middleware.js";
 const router = Router();
 
 router.post("/login", login);
+router.post("/signup", signup);
 router.post("/update-admin", authMiddleware, updateAdmin);
 router.get("/get-users", authMiddleware, getAllUsers);
 router.post("/logout", authMiddleware, logout);

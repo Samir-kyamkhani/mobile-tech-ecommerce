@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "../landing pages/components/Navbar";
-import Footer from "../landing pages/components/Footer";
+import Navbar from "../landingPages/components/Navbar";
+import Footer from "../landingPages/components/Footer";
 
 function LandingPageLayout() {
   return (

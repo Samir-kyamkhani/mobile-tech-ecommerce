@@ -121,7 +121,7 @@ const ShopPage = () => {
   };
 
   return (
-    <div className="px-4 sm:px-6">
+    <div className="px-4 sm:px-6" >
       <HeroSection />
       <div className="max-w-[90rem] mx-auto lg:px-8 py-8 flex flex-col lg:flex-row gap-8">
         {/* Filters Sidebar */}
@@ -257,7 +257,7 @@ const ShopPage = () => {
         </aside>
 
         {/* Products Section */}
-        <main className="flex-1">
+        <main className="flex-1 " id="shop">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
             <h2 className="text-2xl font-bold text-gray-800">Products</h2>
             <div className="flex items-center space-x-4">

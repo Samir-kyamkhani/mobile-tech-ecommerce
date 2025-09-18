@@ -10,8 +10,98 @@ import {
   hashPassword,
   cookieOptions,
   sendEmail,
+  formattedJoinDate,
 } from "../utils/utils.js";
 import prisma from "../db/db.js";
+
+const signup = asyncHandler(async (req, res) => {
+  const { name, location, email, phone, password } = req.body;
+
+  // 1️⃣ Validate required fields
+  if (!name || !location || !email || !phone || !password) {
+    return ApiError.send(
+      res,
+      400,
+      "Name, location, email, phone, and password are required.",
+    );
+  }
+
+  // 2️⃣ Validate email format
+  if (!validator.isEmail(email)) {
+    return ApiError.send(res, 400, "Invalid email format.");
+  }
+
+  // 3️⃣ Validate password strength
+  if (!validator.isStrongPassword(password)) {
+    return ApiError.send(
+      res,
+      400,
+      "Password must be at least 8 characters long and include letters, numbers, and symbols.",
+    );
+  }
+
+  // 4️⃣ Validate phone number
+  if (!validator.isMobilePhone(phone, "any")) {
+    return ApiError.send(res, 400, "Invalid mobile number.");
+  }
+
+  // 5️⃣ Check if email or phone already exists
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [{ email }, { phone }],
+    },
+  });
+
+  if (existingUser) {
+    return ApiError.send(
+      res,
+      400,
+      "User already exists with the given email or phone number.",
+    );
+  }
+
+  // 6️⃣ Hash password
+  const hashedPassword = await hashPassword(password);
+
+  // 7️⃣ Create user
+  const newUser = await prisma.user.create({
+    data: {
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      password: hashedPassword,
+      phone: phone.trim(),
+      location,
+      status: "Active", // Default status for signup
+      joinDate: new Date(), // Auto-set join date
+    },
+  });
+
+  // 8️⃣ Generate token
+  const accessToken = generateAccessToken(
+    newUser.id,
+    newUser.email,
+    newUser.role,
+  );
+
+  // 9️⃣ Prepare safe response
+  const { password: _, ...userSafe } = newUser;
+
+  const userSafeWithFormattedDate = {
+    ...userSafe,
+    joinDate: formattedJoinDate(newUser.joinDate),
+  };
+
+  // 🔟 Send response with cookie
+  return res
+    .status(201)
+    .cookie("accessToken", accessToken, cookieOptions)
+    .json(
+      new ApiResponse(201, "Signup successful.", {
+        user: userSafeWithFormattedDate,
+        accessToken,
+      }),
+    );
+});
 
 // ✅ LOGIN
 const login = asyncHandler(async (req, res) => {
@@ -102,7 +192,7 @@ const updateAdmin = asyncHandler(async (req, res) => {
     dataToUpdate.name = name.trim();
   }
   if (typeof email === "string" && email.trim()) {
-    dataToUpdate.email = email.trim().toLowerCase();;
+    dataToUpdate.email = email.trim().toLowerCase();
   }
   if (typeof phone === "string" && phone.trim()) {
     dataToUpdate.phone = phone.trim();
@@ -251,6 +341,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 });
 
 export {
+  signup,
   login,
   logout,
   forgotPassword,

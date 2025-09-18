@@ -80,6 +80,25 @@ export const login = (credentials) => async (dispatch) => {
   }
 };
 
+
+export const signup = (formData) => async (dispatch) => {
+  dispatch(authRequest());
+  try {
+    const { data } = await axios.post(`${baseURL}/auth/signup`, formData);
+    console.log("data", data);
+    
+    dispatch(
+      authSuccess({
+        user: data.data.user,
+        message: "User Signup successfully.",
+        showToast: true,
+      })
+    );
+  } catch (err) {
+    dispatch(authFail(handleError(err)));
+  }
+};
+
 export const updateAdmin = (updateData) => async (dispatch) => {
   dispatch(authRequest());
   try {

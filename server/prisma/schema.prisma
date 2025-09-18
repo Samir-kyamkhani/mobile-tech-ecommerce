@@ -35,7 +35,7 @@ model Category {
   id          String    @id @default(uuid())
   name        String
   sku         String    @unique
-  description String?
+  description String?   @db.LongText
   image       String?
   createdby   String
   creator     User      @relation("CreatedCategories", fields: [createdby], references: [id])
@@ -45,7 +45,7 @@ model Category {
 model Product {
   id          String         @id @default(uuid())
   name        String
-  description String         @default("")
+  description String         @default("") @db.LongText
   category    Category       @relation(fields: [categoryid], references: [id])
   categoryid  String
   price       Decimal

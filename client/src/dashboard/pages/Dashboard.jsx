@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrders, updateOrder } from "../../redux/slices/orderSlice";
-import StatsGridCard from "../../landing pages/Sections/StatsGridCard";
+import StatsGridCard from "../../landingPages/Sections/StatsGridCard";
 import Analytics from "../components/Analytics";
 
 const Dashboard = () => {

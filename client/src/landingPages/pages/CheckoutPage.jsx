@@ -71,6 +71,12 @@ const CheckoutPage = () => {
       return;
     }
 
+    if (user.role === "Admin") {
+      // Show an error message
+      alert("Only customers can place orders.");
+      return;
+    }
+
     setIsProcessing(true);
 
     const order = {
