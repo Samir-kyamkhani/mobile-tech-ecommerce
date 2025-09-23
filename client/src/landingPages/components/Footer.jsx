@@ -1,3 +1,5 @@
+import { HashLink } from "react-router-hash-link";
+
 export default function Footer() {
   return (
     <footer className="bg-gray-900 text-white py-12">
@@ -20,22 +22,20 @@ export default function Footer() {
           {/* Quick Links */}
           <div>
             <h4 className="font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-gray-300">
-              <li className="hover:text-white cursor-pointer">Home</li>
-              <li className="hover:text-white cursor-pointer">Products</li>
-              <li className="hover:text-white cursor-pointer">Categories</li>
-              <li className="hover:text-white cursor-pointer">Deals</li>
+            <ul className="flex flex-col gap-y-1 text-gray-300">
+              <HashLink to={"/#home"}><li className="hover:text-white cursor-pointer">Home</li></HashLink>
+              <HashLink to={"/#products"}><li className="hover:text-white cursor-pointer">Products</li></HashLink>
+              <HashLink to={"/#categories"}><li className="hover:text-white cursor-pointer">Categories</li></HashLink>
             </ul>
           </div>
 
           {/* Customer Service */}
           <div>
             <h4 className="font-semibold mb-4">Customer Service</h4>
-            <ul className="space-y-2 text-gray-300">
-              <li className="hover:text-white cursor-pointer">Contact Us</li>
-              <li className="hover:text-white cursor-pointer">Shipping Info</li>
-              <li className="hover:text-white cursor-pointer">Returns</li>
-              <li className="hover:text-white cursor-pointer">FAQ</li>
+            <ul className="flex flex-col gap-y-1 text-gray-300">
+              <HashLink to={"/support/#contact"}><li className="hover:text-white cursor-pointer">Contact Us</li></HashLink>
+              <HashLink to={"/policy/#policys"}><li className="hover:text-white cursor-pointer">Policy</li></HashLink>
+              <HashLink to={"/support/#faq"}><li className="hover:text-white cursor-pointer">FAQ</li></HashLink>
             </ul>
           </div>
 

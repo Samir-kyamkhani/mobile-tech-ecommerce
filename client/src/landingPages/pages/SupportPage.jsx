@@ -124,7 +124,9 @@ const SupportPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
+    >
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -179,7 +181,7 @@ const SupportPage = () => {
         </section>
 
         {/* FAQ Section */}
-        <section className="mb-16">
+        <section className="mb-16" id="faq">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
             Frequently Asked Questions
           </h2>
@@ -234,8 +236,8 @@ const SupportPage = () => {
         </section>
 
         {/* Contact Form */}
-        <section className="mb-16">
-          <div className="max-w-7xl  mx-auto">
+        <section className="mb-16" id="contact">
+          <div className="max-w-7xl  mx-auto" >
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 lg:p-12">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">

@@ -1,21 +1,32 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Shield, FileText, RotateCcw, Truck, ArrowLeft, Mail, Phone, MapPin } from 'lucide-react';
+import React, { useState } from "react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Shield,
+  FileText,
+  RotateCcw,
+  Truck,
+  ArrowLeft,
+  Mail,
+  Phone,
+  MapPin,
+} from "lucide-react";
 
 const PolicyPages = () => {
-  const [activePage, setActivePage] = useState('privacy');
+  const [activePage, setActivePage] = useState("privacy");
   const [expandedSections, setExpandedSections] = useState({});
 
   const toggleSection = (section) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
   const policies = [
-    { id: 'privacy', title: 'Privacy Policy', icon: Shield },
-    { id: 'terms', title: 'Terms & Conditions', icon: FileText },
-    { id: 'refund', title: 'Refund & Return Policy', icon: RotateCcw },
+    { id: "privacy", title: "Privacy Policy", icon: Shield },
+    { id: "terms", title: "Terms & Conditions", icon: FileText },
+    { id: "refund", title: "Refund & Return Policy", icon: RotateCcw },
     // { id: 'shipping', title: 'Shipping Policy', icon: Truck }
   ];
 
@@ -28,7 +39,9 @@ const PolicyPages = () => {
 
       <div className="prose max-w-none">
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">Information We Collect</h2>
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">
+            Information We Collect
+          </h2>
           <div className="bg-gray-50 p-6 rounded-lg">
             <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
             <ul className="list-disc list-inside space-y-2 text-gray-700">
@@ -41,24 +54,37 @@ const PolicyPages = () => {
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">How We Use Your Information</h2>
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">
+            How We Use Your Information
+          </h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-blue-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold mb-3 text-blue-800">Service Delivery</h3>
-              <p className="text-gray-700">Process orders, manage accounts, and provide customer support.</p>
+              <h3 className="text-lg font-semibold mb-3 text-blue-800">
+                Service Delivery
+              </h3>
+              <p className="text-gray-700">
+                Process orders, manage accounts, and provide customer support.
+              </p>
             </div>
             <div className="bg-green-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold mb-3 text-green-800">Communication</h3>
-              <p className="text-gray-700">Send order updates, promotional offers, and important notices.</p>
+              <h3 className="text-lg font-semibold mb-3 text-green-800">
+                Communication
+              </h3>
+              <p className="text-gray-700">
+                Send order updates, promotional offers, and important notices.
+              </p>
             </div>
           </div>
         </section>
 
         <section className="mb-8">
-          <h2 className="text-2xl font-bold mb-4 text-gray-800">Data Security</h2>
+          <h2 className="text-2xl font-bold mb-4 text-gray-800">
+            Data Security
+          </h2>
           <p className="text-gray-700 mb-4">
-            We implement industry-standard security measures to protect your personal information, including SSL encryption, 
-            secure payment processing, and regular security audits.
+            We implement industry-standard security measures to protect your
+            personal information, including SSL encryption, secure payment
+            processing, and regular security audits.
           </p>
         </section>
 
@@ -66,8 +92,9 @@ const PolicyPages = () => {
           <h2 className="text-2xl font-bold mb-4 text-gray-800">Your Rights</h2>
           <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6">
             <p className="text-gray-700">
-              You have the right to access, update, or delete your personal information. Contact our support team 
-              for assistance with any privacy-related requests.
+              You have the right to access, update, or delete your personal
+              information. Contact our support team for assistance with any
+              privacy-related requests.
             </p>
           </div>
         </section>
@@ -86,36 +113,48 @@ const PolicyPages = () => {
         {[
           {
             title: "Acceptance of Terms",
-            content: "By accessing and using Shiv Dharati Ltd.'s website and services, you agree to be bound by these terms and conditions. If you do not agree with any part of these terms, you must not use our services."
+            content:
+              "By accessing and using Shiv Dharati Ltd.'s website and services, you agree to be bound by these terms and conditions. If you do not agree with any part of these terms, you must not use our services.",
           },
           {
             title: "Product Information",
-            content: "We strive to provide accurate product descriptions, images, and pricing. However, we do not warrant that product descriptions or other content is accurate, complete, reliable, current, or error-free."
+            content:
+              "We strive to provide accurate product descriptions, images, and pricing. However, we do not warrant that product descriptions or other content is accurate, complete, reliable, current, or error-free.",
           },
           {
             title: "Order Acceptance",
-            content: "All orders are subject to acceptance by Shiv Dharati Ltd.. We reserve the right to refuse or cancel any order for any reason, including product availability, errors in pricing or product information."
+            content:
+              "All orders are subject to acceptance by Shiv Dharati Ltd.. We reserve the right to refuse or cancel any order for any reason, including product availability, errors in pricing or product information.",
           },
           {
             title: "User Accounts",
-            content: "You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. Notify us immediately of any unauthorized use."
+            content:
+              "You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. Notify us immediately of any unauthorized use.",
           },
           {
             title: "Prohibited Uses",
-            content: "You may not use our services for any unlawful purpose, to violate intellectual property rights, or to transmit harmful or offensive content. We reserve the right to terminate accounts that violate these terms."
+            content:
+              "You may not use our services for any unlawful purpose, to violate intellectual property rights, or to transmit harmful or offensive content. We reserve the right to terminate accounts that violate these terms.",
           },
           {
             title: "Limitation of Liability",
-            content: "Shiv Dharati Ltd. shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our services or products, even if we have been advised of the possibility of such damages."
-          }
+            content:
+              "Shiv Dharati Ltd. shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our services or products, even if we have been advised of the possibility of such damages.",
+          },
         ].map((section, index) => (
           <div key={index} className="border rounded-lg">
             <button
               onClick={() => toggleSection(`terms-${index}`)}
               className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50"
             >
-              <h3 className="text-lg font-semibold text-gray-800">{section.title}</h3>
-              {expandedSections[`terms-${index}`] ? <ChevronUp /> : <ChevronDown />}
+              <h3 className="text-lg font-semibold text-gray-800">
+                {section.title}
+              </h3>
+              {expandedSections[`terms-${index}`] ? (
+                <ChevronUp />
+              ) : (
+                <ChevronDown />
+              )}
             </button>
             {expandedSections[`terms-${index}`] && (
               <div className="px-6 pb-4">
@@ -138,36 +177,54 @@ const PolicyPages = () => {
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="bg-green-50 p-6 rounded-lg">
-            <h3 className="text-xl font-bold text-green-800 mb-4">Return Eligibility</h3>
+            <h3 className="text-xl font-bold text-green-800 mb-4">
+              Return Eligibility
+            </h3>
             <ul className="space-y-3">
               <li className="flex items-start">
                 <div className="w-2 h-2 bg-green-600 rounded-full mt-2 mr-3"></div>
-                <span className="text-gray-700">Items must be returned within 30 days of delivery</span>
+                <span className="text-gray-700">
+                  Items must be returned within 30 days of delivery
+                </span>
               </li>
               <li className="flex items-start">
                 <div className="w-2 h-2 bg-green-600 rounded-full mt-2 mr-3"></div>
-                <span className="text-gray-700">Products must be in original packaging</span>
+                <span className="text-gray-700">
+                  Products must be in original packaging
+                </span>
               </li>
               <li className="flex items-start">
                 <div className="w-2 h-2 bg-green-600 rounded-full mt-2 mr-3"></div>
-                <span className="text-gray-700">Items must be unused and undamaged</span>
+                <span className="text-gray-700">
+                  Items must be unused and undamaged
+                </span>
               </li>
             </ul>
           </div>
 
           <div className="bg-blue-50 p-6 rounded-lg">
-            <h3 className="text-xl font-bold text-blue-800 mb-4">Return Process</h3>
+            <h3 className="text-xl font-bold text-blue-800 mb-4">
+              Return Process
+            </h3>
             <div className="space-y-4">
               <div className="flex items-center">
-                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">1</div>
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                  1
+                </div>
                 <span className="text-gray-700">Contact customer support</span>
               </div>
               <div className="flex items-center">
-                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">2</div>
-                <span className="text-gray-700">Receive return authorization</span>
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                  2
+                </div>
+                <span className="text-gray-700">
+                  Receive return authorization
+                </span>
               </div>
               <div className="flex items-center">
-                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">3</div>
+                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mr-3">
+                  3
+                </div>
                 <span className="text-gray-700">Pack and ship the item</span>
               </div>
             </div>
@@ -176,25 +233,35 @@ const PolicyPages = () => {
 
         <div className="space-y-6">
           <div className="bg-yellow-50 p-6 rounded-lg">
-            <h3 className="text-xl font-bold text-yellow-800 mb-4">Refund Timeline</h3>
+            <h3 className="text-xl font-bold text-yellow-800 mb-4">
+              Refund Timeline
+            </h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center border-b pb-2">
                 <span className="text-gray-700">Processing Time</span>
-                <span className="font-semibold text-yellow-800">3-5 business days</span>
+                <span className="font-semibold text-yellow-800">
+                  3-5 business days
+                </span>
               </div>
               <div className="flex justify-between items-center border-b pb-2">
                 <span className="text-gray-700">Credit Card Refund</span>
-                <span className="font-semibold text-yellow-800">5-7 business days</span>
+                <span className="font-semibold text-yellow-800">
+                  5-7 business days
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-700">Bank Transfer</span>
-                <span className="font-semibold text-yellow-800">7-10 business days</span>
+                <span className="font-semibold text-yellow-800">
+                  7-10 business days
+                </span>
               </div>
             </div>
           </div>
 
           <div className="bg-red-50 p-6 rounded-lg">
-            <h3 className="text-xl font-bold text-red-800 mb-4">Non-Returnable Items</h3>
+            <h3 className="text-xl font-bold text-red-800 mb-4">
+              Non-Returnable Items
+            </h3>
             <ul className="space-y-2 text-gray-700">
               <li>• Customized or personalized products</li>
               <li>• Software or digital downloads</li>
@@ -318,11 +385,15 @@ const PolicyPages = () => {
 
   const renderActivePage = () => {
     switch (activePage) {
-      case 'privacy': return <PrivacyPolicy />;
-      case 'terms': return <TermsConditions />;
-      case 'refund': return <RefundPolicy />;
+      case "privacy":
+        return <PrivacyPolicy />;
+      case "terms":
+        return <TermsConditions />;
+      case "refund":
+        return <RefundPolicy />;
       // case 'shipping': return <ShippingPolicy />;
-      default: return <PrivacyPolicy />;
+      default:
+        return <PrivacyPolicy />;
     }
   };
 
@@ -348,19 +419,21 @@ const PolicyPages = () => {
               </div>
               <div className="flex items-center text-sm text-gray-600">
                 <Mail className="w-4 h-4 mr-1" />
-                <span>support@Shiv Dharati Ltd..com</span>
+                <span>support@shivdharatiltd.com</span>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="policys">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-8">
-              <h2 className="text-lg font-bold text-gray-800 mb-6">Legal Information</h2>
+              <h2 className="text-lg font-bold text-gray-800 mb-6">
+                Legal Information
+              </h2>
               <nav className="space-y-2">
                 {policies.map(({ id, title, icon: Icon }) => (
                   <button
@@ -368,8 +441,8 @@ const PolicyPages = () => {
                     onClick={() => setActivePage(id)}
                     className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
                       activePage === id
-                        ? 'bg-blue-600 text-white'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? "bg-blue-600 text-white"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`}
                   >
                     <Icon className="w-5 h-5 mr-3" />
@@ -388,8 +461,6 @@ const PolicyPages = () => {
           </div>
         </div>
       </div>
-
-   
     </div>
   );
 };

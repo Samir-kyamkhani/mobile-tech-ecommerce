@@ -105,7 +105,7 @@ export default function HeroSection() {
   const path = location.pathname;
 
   return (
-    <section className="relative bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden w-full">
+    <section className="relative bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden w-full" id="home">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 -right-40 w-80 h-80 bg-blue-500 rounded-full blur-3xl"></div>

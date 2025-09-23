@@ -15,7 +15,7 @@ export default function FeaturedCategories() {
   }, [dispatch, categoryChanged]);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-gray-100 to-white">
+    <section className="py-20 bg-gradient-to-b from-gray-100 to-white" id="categories">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <h3 className="text-4xl font-extrabold text-center mb-16 text-gray-900 tracking-tight">
           Shop by Category
