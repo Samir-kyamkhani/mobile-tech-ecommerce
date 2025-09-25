@@ -23,19 +23,46 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Quick Links</h4>
             <ul className="flex flex-col gap-y-1 text-gray-300">
-              <HashLink to={"/#home"}><li className="hover:text-white cursor-pointer">Home</li></HashLink>
-              <HashLink to={"/#products"}><li className="hover:text-white cursor-pointer">Products</li></HashLink>
-              <HashLink to={"/#categories"}><li className="hover:text-white cursor-pointer">Categories</li></HashLink>
+              <HashLink to={"/#home"}>
+                <li className="hover:text-white cursor-pointer">Home</li>
+              </HashLink>
+              <HashLink to={"/#products"}>
+                <li className="hover:text-white cursor-pointer">Products</li>
+              </HashLink>
+              <HashLink to={"/#categories"}>
+                <li className="hover:text-white cursor-pointer">Categories</li>
+              </HashLink>
+              <HashLink to={"/support/#contact"}>
+                <li className="hover:text-white cursor-pointer">Contact Us</li>
+              </HashLink>
             </ul>
           </div>
 
           {/* Customer Service */}
           <div>
-            <h4 className="font-semibold mb-4">Customer Service</h4>
+            <h4 className="font-semibold mb-4">Customer Policy</h4>
             <ul className="flex flex-col gap-y-1 text-gray-300">
-              <HashLink to={"/support/#contact"}><li className="hover:text-white cursor-pointer">Contact Us</li></HashLink>
-              <HashLink to={"/policy/#policys"}><li className="hover:text-white cursor-pointer">Policy</li></HashLink>
-              <HashLink to={"/support/#faq"}><li className="hover:text-white cursor-pointer">FAQ</li></HashLink>
+              <HashLink to={"/refund-and-cancellation#1"}>
+                <li className="hover:text-white cursor-pointer">
+                  Cancellation & Returns
+                </li>
+              </HashLink>
+              <HashLink to={"/terms-of-use#2"}>
+                <li className="hover:text-white cursor-pointer">
+                  Terms Of Use
+                </li>
+              </HashLink>
+              <HashLink to={"/privacy-policy#3"}>
+                <li className="hover:text-white cursor-pointer">
+                  Privacy Policy
+                </li>
+              </HashLink>
+
+              <HashLink to={"/shipping-policy#4"}>
+                <li className="hover:text-white cursor-pointer">
+                  Shipping Policy
+                </li>
+              </HashLink>
             </ul>
           </div>
 

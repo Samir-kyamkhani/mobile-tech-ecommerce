@@ -73,48 +73,67 @@ const SupportPage = () => {
     },
   ];
 
-  const contactOptions = [
-    {
-      icon: Phone,
-      title: "Phone Support",
-      description: "Speak directly with a support specialist",
-      availability: "Mon-Fri 8AM-8PM EST",
-      action: "Call Now",
-      color: "bg-green-500",
-      hoverColor: "hover:bg-green-600",
-    },
-    {
-      icon: Mail,
-      title: "Email Support",
-      description: "Send us a detailed message",
-      availability: "Response within 24 hours",
-      action: "Send Email",
-      color: "bg-purple-500",
-      hoverColor: "hover:bg-purple-600",
-    },
-  ];
+  // const contactOptions = [
+  //   {
+  //     icon: Phone,
+  //     title: "Phone Support",
+  //     description: "Speak directly with a support specialist",
+  //     availability: "Mon-Fri 8AM-8PM EST",
+  //     action: "Call Now",
+  //     color: "bg-green-500",
+  //     hoverColor: "hover:bg-green-600",
+  //   },
+  //   {
+  //     icon: Mail,
+  //     title: "Email Support",
+  //     description: "Send us a detailed message",
+  //     availability: "Response within 24 hours",
+  //     action: "Send Email",
+  //     color: "bg-purple-500",
+  //     hoverColor: "hover:bg-purple-600",
+  //   },
+  // ];
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setContactForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const res = await fetch(`${baseUrl}/send-mail`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(contactForm),
+      });
 
-    setIsSubmitting(false);
-    setSubmitted(true);
-    setContactForm({
-      name: "",
-      email: "",
-      subject: "",
-      message: "",
-      priority: "medium",
-    });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Failed to send message.");
+      }
+
+      // Success
+      setIsSubmitting(false);
+      setSubmitted(true);
+      setContactForm({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+        priority: "medium",
+      });
+    } catch (error) {
+      console.error("Email error:", error.message);
+      alert("There was an error sending your message. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   const filteredFaqs = faqs.filter(
@@ -124,9 +143,7 @@ const SupportPage = () => {
   );
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100"
-    >
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -144,7 +161,7 @@ const SupportPage = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Contact Options */}
-        <section className="mb-16">
+        {/* <section className="mb-16">
           <h2 className="text-3xl font-bold text-gray-900 text-center mb-12">
             Get in Touch
           </h2>
@@ -178,7 +195,7 @@ const SupportPage = () => {
               );
             })}
           </div>
-        </section>
+        </section> */}
 
         {/* FAQ Section */}
         <section className="mb-16" id="faq">
@@ -237,7 +254,7 @@ const SupportPage = () => {
 
         {/* Contact Form */}
         <section className="mb-16" id="contact">
-          <div className="max-w-7xl  mx-auto" >
+          <div className="max-w-7xl  mx-auto">
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-8 lg:p-12">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">

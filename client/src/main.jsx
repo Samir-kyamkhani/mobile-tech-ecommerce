@@ -29,6 +29,10 @@ import NotFoundPage from "./landingPages/pages/NotFoundPage.jsx";
 import LedgerPage from "./dashboard/pages/LedgerPage.jsx";
 import SignupPage from "./landingPages/pages/auth/SignupPage.jsx";
 import PolicyPages from "./landingPages/pages/PolicyPages.jsx";
+import CancellationReturnsPage from "./landingPages/pages/CancellationReturnsPage.jsx";
+import TermsOfUsePage from "./landingPages/pages/TermsOfUsePage.jsx";
+import PrivacyPolicyPage from "./landingPages/pages/PrivacyPolicyPage.jsx";
+import ShippingPolicyPage from "./landingPages/pages/ShippingPolicyPage.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -44,7 +48,16 @@ const router = createBrowserRouter(
         <Route path="support" element={<SupportPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
-        <Route path="policy" element={<PolicyPages />} />
+        {/* <Route path="policy" element={<PolicyPages />} /> */}
+
+        <Route
+          path="refund-and-cancellation"
+          element={<CancellationReturnsPage />}
+        />
+        <Route path="terms-of-use" element={<TermsOfUsePage />} />
+        <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="shipping-policy" element={<ShippingPolicyPage />} />
+
         <Route element={<ProtectedRoute />}>
           <Route path="profile" element={<UserProfilePage />} />
         </Route>
@@ -54,7 +67,7 @@ const router = createBrowserRouter(
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="ledger" element={ <LedgerPage />} />
+          <Route path="ledger" element={<LedgerPage />} />
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="customers" element={<CustomersPage />} />

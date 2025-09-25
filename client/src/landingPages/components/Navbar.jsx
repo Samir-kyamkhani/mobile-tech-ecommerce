@@ -149,7 +149,7 @@ export default function Navbar() {
             >
               Support
             </NavLink>
-            <NavLink
+            {/* <NavLink
               to="/policy"
               className={({ isActive }) =>
                 `${
@@ -158,7 +158,7 @@ export default function Navbar() {
               }
             >
               Privacy Policy
-            </NavLink>
+            </NavLink> */}
           </nav>
 
           {/* Search + Cart + Login */}
