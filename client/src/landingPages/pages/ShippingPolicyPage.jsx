@@ -73,7 +73,7 @@ export default function ShippingPolicyPage() {
             />
             <ul>
               <ListItem>
-                <strong>Standard Shipping:</strong> Delivered within 7 to 15
+                <strong>Standard Shipping:</strong> Delivered within 3 to 5
                 working days.
               </ListItem>
               <ListItem>

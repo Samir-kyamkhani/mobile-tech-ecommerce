@@ -93,7 +93,7 @@ export default function CancellationReturnsPage() {
               Return Policy:
             </h3>
             <Paragraph>
-              We accept returns within 14 days of delivery. To be eligible,
+              We accept returns within 3-5 days of delivery. To be eligible,
               items must be unused, in their original condition, with all tags
               and packaging intact.
             </Paragraph>
@@ -103,7 +103,7 @@ export default function CancellationReturnsPage() {
             <Paragraph>
               Once we receive and inspect your returned item, your refund will
               be processed. The amount will be credited to your original payment
-              method within **3-5 business days**.
+              method within **3-7 business days**.
             </Paragraph>
           </section>
 
