@@ -7,7 +7,7 @@ const data = "10mb";
 
 app.use(
   cors({
-    origin: "https://shivdharati.com",
+    origin: process.env.CLIENT_URI || "https://shivdharati.com",
     credentials: true,
   }),
 );
