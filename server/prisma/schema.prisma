@@ -29,7 +29,6 @@ model User {
   createdProducts   Product[]  @relation("CreatedProducts")
   createdOrders     Order[]    @relation("CreatedOrders")
   customerOrders    Order[]    @relation("CustomerOrders")
-
   @@map("user")
 }
 
@@ -42,7 +41,6 @@ model Category {
   createdby   String
   creator     User      @relation("CreatedCategories", fields: [createdby], references: [id])
   products    Product[]
-
   @@map("category")
 }
 
@@ -59,7 +57,6 @@ model Product {
   createdby   String
   creator     User           @relation("CreatedProducts", fields: [createdby], references: [id])
   orderItems  OrderItem[]
-
   @@map("product")
 }
 
@@ -68,8 +65,7 @@ model ProductImage {
   url       String
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@map("productImage")
+  @@map("productimage")
 }
 
 model Order {
@@ -86,7 +82,6 @@ model Order {
   items      OrderItem[]
   shippingId String
   shipping   ShippingAddress @relation(fields: [shippingId], references: [id])
-
   @@map("order")
 }
 
@@ -99,8 +94,7 @@ model ShippingAddress {
   city      String
   zip       String
   orders    Order[]
-
-  @@map("shippingAddress")
+  @@map("shippingaddress")
 }
 
 model OrderItem {
@@ -111,8 +105,7 @@ model OrderItem {
   productid String
   quantity  Int
   price     Decimal
-
-  @@map("orderItem")
+  @@map("orderitem")
 }
 
 enum Role {
