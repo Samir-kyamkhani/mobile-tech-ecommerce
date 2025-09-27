@@ -13,7 +13,9 @@ const sendMail = asyncHandler(async (req, res) => {
 
   // Setup Nodemailer
   const transporter = nodemailer.createTransport({
-    service: "gmail", // or use host + port if using a custom SMTP
+    host: "smtp.gmail.com",
+    port: 465, // or try 587 for TLS
+    secure: true, // true for port 465, false for 587
     auth: {
       user: process.env.EMAIL_USER, // Your admin email
       pass: process.env.EMAIL_PASS, // App password
