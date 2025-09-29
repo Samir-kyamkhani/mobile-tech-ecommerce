@@ -221,9 +221,11 @@ export default function PrivacyPolicyPage() {
             <address className="not-italic text-gray-700">
               SHIV DHARATI COMMUNICATION PRIVATE LIMITED
               <br />
-              2nd Floor, 10/523, Kaveri Path, Mansarovar Sector 1,
+              T/6, D Con Complex
               <br />
-              Mansarovar, Jaipur, Rajasthan 302020
+              Dharma Cinema Road, Opp. B K Cinema
+              <br />
+              Sukheshwar Nagar, Mahesana, Gujarat – 384002
               <br />
               <strong>Phone:</strong>{" "}
               <a href="tel:+919089891000" className="hover:text-blue-600">

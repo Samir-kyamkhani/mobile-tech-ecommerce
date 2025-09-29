@@ -11,7 +11,7 @@ export default function Features() {
               <Truck className="text-blue-600" size={32} />
             </div>
             <h4 className="text-xl font-semibold mb-2">Free Shipping</h4>
-            <p className="text-gray-600">Free shipping on orders over $50</p>
+            <p className="text-gray-600">Free shipping on orders over ₹500</p>
           </div>
           <div className="text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">

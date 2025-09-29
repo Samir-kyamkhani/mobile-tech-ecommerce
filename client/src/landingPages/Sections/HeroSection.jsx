@@ -22,16 +22,16 @@ export default function HeroSection() {
       id: 1,
       title: "iPhone 15 Pro Max",
       subtitle: "Experience the future with titanium design",
-      description: "Starting from $1,199 with free shipping",
+      description: "Starting from ₹99,499 with free shipping",
       image: "https://m.media-amazon.com/images/I/81SigpJN1KL._SX679_.jpg",
       icon: <Smartphone className="w-6 h-6" />,
-      price: "1,199",
-      originalPrice: "1,299",
+      price: "₹99,499",
+      originalPrice: "₹159,499",
       badge: "New Launch",
       category: "Smartphones",
       rating: 4.9,
       reviews: "2.3k",
-      colors: ["#1f2937", "#ef4444", "#3b82f6", "#f59e0b"],
+      // colors: ["#1f2937", "#ef4444", "#3b82f6", "#f59e0b"],
       features: ["A17 Pro Chip", "48MP Camera", "Titanium Build"],
     },
     {
@@ -42,13 +42,13 @@ export default function HeroSection() {
       image:
         "https://m.media-amazon.com/images/I/81h-tgpSt+L._SX679_.jpg",
       icon: <Watch className="w-6 h-6" />,
-      price: "799",
-      originalPrice: "849",
+      price: "₹59,999",
+      originalPrice: "₹69,999",
       badge: "Best Seller",
       category: "Smartwatches",
       rating: 4.8,
       reviews: "1.8k",
-      colors: ["#374151", "#dc2626", "#059669"],
+      // colors: ["#374151", "#dc2626", "#059669"],
       features: ["S9 Chip", "Double Tap", "Cellular"],
     },
     {
@@ -59,13 +59,13 @@ export default function HeroSection() {
       image:
         "https://m.media-amazon.com/images/I/61sRKTAfrhL._SX679_.jpg",
       icon: <Headphones className="w-6 h-6" />,
-      price: "249",
-      originalPrice: "279",
+      price: "₹15,999.00",
+      originalPrice: "₹18,999.00",
       badge: "Limited Offer",
       category: "Audio",
       rating: 4.7,
       reviews: "3.1k",
-      colors: ["#ffffff", "#1f2937"],
+      // colors: ["#ffffff", "#1f2937"],
       features: ["H2 Chip", "Spatial Audio", "MagSafe Case"],
     },
   ];
@@ -209,11 +209,11 @@ export default function HeroSection() {
 
               {/* Color Options */}
               <div className="flex items-center justify-center lg:justify-start gap-3">
-                <span className="text-sm font-medium text-gray-700">
+                {/* <span className="text-sm font-medium text-gray-700">
                   Colors:
-                </span>
+                </span> */}
                 <div className="flex gap-2">
-                  {currentSlideData.colors.map((color, index) => (
+                  {currentSlideData.colors?.map((color, index) => (
                     <button
                       key={index}
                       className="w-8 h-8 rounded-full border-2 border-gray-200 hover:border-gray-400 transition-colors"

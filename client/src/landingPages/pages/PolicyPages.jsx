@@ -114,7 +114,7 @@ const PolicyPages = () => {
           {
             title: "Acceptance of Terms",
             content:
-              "By accessing and using Shiv Dharati Ltd.'s website and services, you agree to be bound by these terms and conditions. If you do not agree with any part of these terms, you must not use our services.",
+              "By accessing and using Shiv Dharati Communication Pvt. Ltd.'s website and services, you agree to be bound by these terms and conditions. If you do not agree with any part of these terms, you must not use our services.",
           },
           {
             title: "Product Information",
@@ -124,7 +124,7 @@ const PolicyPages = () => {
           {
             title: "Order Acceptance",
             content:
-              "All orders are subject to acceptance by Shiv Dharati Ltd.. We reserve the right to refuse or cancel any order for any reason, including product availability, errors in pricing or product information.",
+              "All orders are subject to acceptance by Shiv Dharati Communication Pvt. Ltd.. We reserve the right to refuse or cancel any order for any reason, including product availability, errors in pricing or product information.",
           },
           {
             title: "User Accounts",
@@ -139,7 +139,7 @@ const PolicyPages = () => {
           {
             title: "Limitation of Liability",
             content:
-              "Shiv Dharati Ltd. shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our services or products, even if we have been advised of the possibility of such damages.",
+              "Shiv Dharati Communication Pvt. Ltd. shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our services or products, even if we have been advised of the possibility of such damages.",
           },
         ].map((section, index) => (
           <div key={index} className="border rounded-lg">
@@ -410,7 +410,7 @@ const PolicyPages = () => {
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <div className="text-xl font-bold text-blue-600">Shiv Dharati Ltd.</div> */}
+              <div className="text-xl font-bold text-blue-600">Shiv Dharati Communication Pvt. Ltd.</div> */}
             {/* </div> */}
             <div className="flex items-center space-x-6">
               <div className="flex items-center text-sm text-gray-600">

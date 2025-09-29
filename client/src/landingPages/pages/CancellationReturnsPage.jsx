@@ -51,12 +51,11 @@ export default function CancellationReturnsPage() {
             <SectionTitle icon={<Truck />} title="Shipping Policy" />
             <Paragraph>
               We are committed to delivering your products safely and on time,
-              both within India and internationally.
+              Pan India.
             </Paragraph>
             <ul>
               <ListItem>
-                <strong>Shipping Area:</strong> We offer both Pan-India and
-                Worldwide shipping options.
+                <strong>Shipping Area:</strong> We offer both Pan-India.
               </ListItem>
               <ListItem>
                 <strong>Free Shipping:</strong> Enjoy free shipping on all
@@ -65,8 +64,7 @@ export default function CancellationReturnsPage() {
               </ListItem>
               <ListItem>
                 <strong>Delivery Time:</strong> Domestic orders are typically
-                delivered within 5-7 business days. International delivery may
-                take 15-21 business days.
+                delivered within 5-7 business days.
               </ListItem>
               <ListItem>
                 <strong>Tracking:</strong> A tracking number will be sent to
@@ -103,7 +101,7 @@ export default function CancellationReturnsPage() {
             <Paragraph>
               Once we receive and inspect your returned item, your refund will
               be processed. The amount will be credited to your original payment
-              method within **3-7 business days**.
+              method within **3-5 business days**.
             </Paragraph>
           </section>
 

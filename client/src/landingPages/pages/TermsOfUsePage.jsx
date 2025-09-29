@@ -169,7 +169,7 @@ export default function TermsOfUsePage() {
             <Paragraph>
               These Terms of Use are governed by the laws of India. Any disputes
               arising from these terms shall be subject to the exclusive
-              jurisdiction of the courts in Jaipur, Rajasthan, India.
+              jurisdiction of the courts in Gujarat , India.
             </Paragraph>
           </section>
         </main>

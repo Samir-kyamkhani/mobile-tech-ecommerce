@@ -51,26 +51,16 @@ const SupportPage = () => {
       id: 3,
       question: "How long does shipping take?",
       answer:
-        "Standard shipping typically takes 3-5 business days within the continental US. Express shipping (1-2 business days) and overnight options are also available. International shipping varies by location but generally takes 7-14 business days.",
+        "Standard shipping typically takes 3-5 business days within the continental.",
     },
-    {
-      id: 4,
-      question: "Do you offer international shipping?",
-      answer:
-        "Yes, we ship to over 50 countries worldwide. Shipping costs and delivery times vary by destination. International customers are responsible for any customs duties or taxes that may apply.",
-    },
+    
     {
       id: 5,
       question: "How can I change or cancel my order?",
       answer:
         "Orders can be modified or canceled within 1 hour of placement. After this window, we begin processing your order immediately. Contact our support team as soon as possible if you need to make changes.",
     },
-    {
-      id: 6,
-      question: "What payment methods do you accept?",
-      answer:
-        "We accept all major credit cards (Visa, MasterCard, American Express, Discover), PayPal, Apple Pay, Google Pay, and Shop Pay. All transactions are securely processed with 256-bit SSL encryption.",
-    },
+    
   ];
 
   // const contactOptions = [

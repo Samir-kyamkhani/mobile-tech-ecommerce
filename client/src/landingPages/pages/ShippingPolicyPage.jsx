@@ -97,25 +97,10 @@ export default function ShippingPolicyPage() {
             </ul>
           </section>
 
-          <section>
-            <SectionTitle icon={<Globe />} title="4. International Shipping" />
-            <ul>
-              <ListItem>
-                We do ship internationally to select countries.
-              </ListItem>
-              <ListItem>
-                Any customs duties, taxes, or import fees are the customer’s
-                responsibility.
-              </ListItem>
-              <ListItem>
-                International shipping times may be longer due to customs
-                processing.
-              </ListItem>
-            </ul>
-          </section>
+         
 
           <section>
-            <SectionTitle icon={<Map />} title="5. Tracking Your Order" />
+            <SectionTitle icon={<Map />} title="4. Tracking Your Order" />
             <ul>
               <ListItem>
                 Once your order ships, we’ll email you a tracking .
@@ -130,7 +115,7 @@ export default function ShippingPolicyPage() {
           <section>
             <SectionTitle
               icon={<Home />}
-              title="6. Double-Check Your Address"
+              title="5. Double-Check Your Address"
             />
             <Paragraph>
               Please make sure your shipping address is correct before placing
@@ -142,7 +127,7 @@ export default function ShippingPolicyPage() {
           <section>
             <SectionTitle
               icon={<AlertTriangle />}
-              title="7. Delays or Lost Packages"
+              title="6. Delays or Lost Packages"
             />
             <ul>
               <ListItem>
@@ -159,7 +144,7 @@ export default function ShippingPolicyPage() {
           <section>
             <SectionTitle
               icon={<Undo2 />}
-              title="8. Returns Due to Non-Delivery"
+              title="7. Returns Due to Non-Delivery"
             />
             <Paragraph>
               If a package is returned to us because of an incorrect address or

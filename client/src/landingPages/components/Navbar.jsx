@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { getAllProducts } from "../../redux/slices/productSlice";
 import { getAllCategories } from "../../redux/slices/categorySlice"; // Import this if you use it
+import { HashLink } from "react-router-hash-link";
 
 export default function Navbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -59,7 +60,7 @@ export default function Navbar() {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-4">
         <div className="flex items-center justify-between h-16 relative">
           <div className="flex items-center space-x-3">
             {/* Mobile menu button */}
@@ -74,10 +75,10 @@ export default function Navbar() {
             {/* Logo Text */}
             <NavLink
               to="/"
-              className="text-2xl font-extrabold tracking-tight text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+              className="lg:text-xl xl:text-2xl py-4 font-extrabold tracking-tight text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
               onClick={() => setShowMobileMenu(false)}
             >
-              Shiv Dharati Ltd.
+              Shiv Dharati Communication Pvt. Ltd.
             </NavLink>
           </div>
 
@@ -101,8 +102,8 @@ export default function Navbar() {
               onMouseEnter={() => setShowCategoryDropdown(true)}
               onMouseLeave={() => setShowCategoryDropdown(false)}
             >
-              <NavLink
-                to="/shop"
+              <HashLink
+                to="/shop#shop"
                 className={({ isActive }) =>
                   `${
                     isActive ? "text-blue-600 " : "text-gray-700"
@@ -110,7 +111,7 @@ export default function Navbar() {
                 }
               >
                 Shop
-              </NavLink>
+              </HashLink>
 
               {showCategoryDropdown && categories.length > 0 && (
                 <div

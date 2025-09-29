@@ -148,7 +148,7 @@ const ShopPage = () => {
                   ? "max-h-screen opacity-100"
                   : "max-h-0 opacity-0 lg:max-h-full lg:opacity-100"
               } lg:block space-y-6`}
-            >
+             id="shop">
               {/* Category Filter */}
               <div>
                 <h4 className="text-sm font-medium text-gray-700 mb-2">
