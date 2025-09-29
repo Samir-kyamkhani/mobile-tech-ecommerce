@@ -7,10 +7,10 @@ import Features from "../Sections/Features";
 const HomePage = () => {
   return (
     <div>
-      <div className="px-4 sm:px-6" >
+      <div className="px-4 sm:px-6"  >
         <HeroSection />
       </div>
-      <div id="home">
+      <div>
         
       <FeaturedCategories />
       <FeaturedProducts />

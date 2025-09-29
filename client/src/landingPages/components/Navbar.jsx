@@ -84,8 +84,8 @@ export default function Navbar() {
 
           {/* Navigation Links */}
           <nav className="hidden md:flex space-x-8 relative">
-            <NavLink
-              to="/"
+            <HashLink
+              to="/#home"
               end
               className={({ isActive }) =>
                 `${
@@ -94,7 +94,7 @@ export default function Navbar() {
               }
             >
               Home
-            </NavLink>
+            </HashLink>
 
             {/* Shop with hover dropdown */}
             <div
