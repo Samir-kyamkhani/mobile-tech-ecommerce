@@ -318,21 +318,20 @@ export default function Navbar() {
             </NavLink>
             <NavLink
               to="/about-us"
+              onClick={() => setShowMobileMenu(false)}
               className={({ isActive }) =>
-                `${
-                  isActive ? "text-blue-600" : "text-gray-700"
-                } hover:text-blue-600`
+                (isActive ? "text-blue-600" : "text-gray-700") +
+                " block w-full text-left py-2 hover:text-blue-600"
               }
             >
               About
             </NavLink>
-
             <NavLink
               to="/contact-us"
+              onClick={() => setShowMobileMenu(false)}
               className={({ isActive }) =>
-                `${
-                  isActive ? "text-blue-600" : "text-gray-700"
-                } hover:text-blue-600`
+                (isActive ? "text-blue-600" : "text-gray-700") +
+                " block w-full text-left py-2 hover:text-blue-600"
               }
             >
               Contact Us
