@@ -39,8 +39,7 @@ export default function HeroSection() {
       title: "Apple Watch Ultra 2",
       subtitle: "Built for adventure, designed to endure",
       description: "Up to 72 hours of battery life",
-      image:
-        "https://m.media-amazon.com/images/I/81h-tgpSt+L._SX679_.jpg",
+      image: "https://m.media-amazon.com/images/I/81h-tgpSt+L._SX679_.jpg",
       icon: <Watch className="w-6 h-6" />,
       price: "₹59,999",
       originalPrice: "₹69,999",
@@ -56,8 +55,7 @@ export default function HeroSection() {
       title: "AirPods Pro 2nd Gen",
       subtitle: "Immerse yourself in pure sound",
       description: "Active Noise Cancellation redefined",
-      image:
-        "https://m.media-amazon.com/images/I/61sRKTAfrhL._SX679_.jpg",
+      image: "https://m.media-amazon.com/images/I/61sRKTAfrhL._SX679_.jpg",
       icon: <Headphones className="w-6 h-6" />,
       price: "₹15,999.00",
       originalPrice: "₹18,999.00",
@@ -105,7 +103,10 @@ export default function HeroSection() {
   const path = location.pathname;
 
   return (
-    <section id="home" className="relative bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden w-full" id="home">
+    <section
+      id="home"
+      className="relative bg-gradient-to-br from-gray-50 via-white to-blue-50 overflow-hidden w-full"
+    >
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-0 -right-40 w-80 h-80 bg-blue-500 rounded-full blur-3xl"></div>

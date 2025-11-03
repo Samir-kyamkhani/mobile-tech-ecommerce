@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { getAllProducts } from "../../redux/slices/productSlice";
-import { getAllCategories } from "../../redux/slices/categorySlice"; // Import this if you use it
+import { getAllCategories } from "../../redux/slices/categorySlice";
 import { HashLink } from "react-router-hash-link";
 
 export default function Navbar() {
@@ -60,7 +60,7 @@ export default function Navbar() {
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-4">
+      <div className="px-8">
         <div className="flex items-center justify-between h-16 relative">
           <div className="flex items-center space-x-3">
             {/* Mobile menu button */}
@@ -114,10 +114,7 @@ export default function Navbar() {
               </HashLink>
 
               {showCategoryDropdown && categories.length > 0 && (
-                <div
-                  className="absolute left-1/2 right-1/2 top-full mt-2 border border-gray-200 min-w-[50rem] max-w-[50rem] bg-white shadow-lg rounded-lg p-4 grid grid-cols-2 gap-4 z-50
-               -translate-x-1/2"
-                >
+                <div className="absolute left-1/2 right-1/2 top-full mt-2 border border-gray-200 min-w-[50rem] max-w-[50rem] bg-white shadow-lg rounded-lg p-4 grid grid-cols-2 gap-4 z-50 -translate-x-1/2">
                   {categories.map((category) => (
                     <Link
                       to={`/shop/${category.id}`}
@@ -150,16 +147,28 @@ export default function Navbar() {
             >
               Support
             </NavLink>
-            {/* <NavLink
-              to="/policy"
+
+            <NavLink
+              to="/about-us"
               className={({ isActive }) =>
                 `${
                   isActive ? "text-blue-600" : "text-gray-700"
                 } hover:text-blue-600`
               }
             >
-              Privacy Policy
-            </NavLink> */}
+              About
+            </NavLink>
+
+            <NavLink
+              to="/contact-us"
+              className={({ isActive }) =>
+                `${
+                  isActive ? "text-blue-600" : "text-gray-700"
+                } hover:text-blue-600`
+              }
+            >
+              Contact Us
+            </NavLink>
           </nav>
 
           {/* Search + Cart + Login */}
@@ -254,7 +263,7 @@ export default function Navbar() {
 
               {/* Mobile Live Search Dropdown */}
               {filteredProducts.length > 0 && (
-                <div className="absolute  border overflow-hidden border-gray-300 bg-white shadow-lg mt-1 rounded-lg w-full z-50">
+                <div className="absolute border overflow-hidden border-gray-300 bg-white shadow-lg mt-1 rounded-lg w-full z-50">
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
@@ -306,6 +315,27 @@ export default function Navbar() {
               }
             >
               Support
+            </NavLink>
+            <NavLink
+              to="/about-us"
+              className={({ isActive }) =>
+                `${
+                  isActive ? "text-blue-600" : "text-gray-700"
+                } hover:text-blue-600`
+              }
+            >
+              About
+            </NavLink>
+
+            <NavLink
+              to="/contact-us"
+              className={({ isActive }) =>
+                `${
+                  isActive ? "text-blue-600" : "text-gray-700"
+                } hover:text-blue-600`
+              }
+            >
+              Contact Us
             </NavLink>
           </div>
         </div>

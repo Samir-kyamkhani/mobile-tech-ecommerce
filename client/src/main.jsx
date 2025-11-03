@@ -33,6 +33,8 @@ import CancellationReturnsPage from "./landingPages/pages/CancellationReturnsPag
 import TermsOfUsePage from "./landingPages/pages/TermsOfUsePage.jsx";
 import PrivacyPolicyPage from "./landingPages/pages/PrivacyPolicyPage.jsx";
 import ShippingPolicyPage from "./landingPages/pages/ShippingPolicyPage.jsx";
+import ContactUsPage from "./landingPages/pages/ContactUsPage.jsx";
+import AboutUsPage from "./landingPages/pages/AboutUsPage.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -46,6 +48,8 @@ const router = createBrowserRouter(
         <Route path="shop-product/:id" element={<ProductDetailsPage />} />
         <Route path="checkout" element={<CheckoutPage />} />
         <Route path="support" element={<SupportPage />} />
+        <Route path="about-us" element={<AboutUsPage />} />
+        <Route path="contact-us" element={<ContactUsPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
         {/* <Route path="policy" element={<PolicyPages />} /> */}
