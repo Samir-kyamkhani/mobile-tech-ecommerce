@@ -15,7 +15,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
 
   const { user } = useSelector((state) => state.auth);
-  console.log();
+
 
   const location = useLocation();
 

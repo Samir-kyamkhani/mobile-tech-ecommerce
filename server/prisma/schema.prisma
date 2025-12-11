@@ -75,19 +75,23 @@ model ProductImage {
 }
 
 model Order {
-  id         String          @id @default(uuid())
-  customerid String
-  total      Decimal
-  status     OrderStatus?    @default(Pending)
-  payment    PaymentStatus?  @default(Pending)
-  date       DateTime        @default(now())
-  duedate    DateTime?
-  createdby  String
-  shippingId String
-  creator    User            @relation("CreatedOrders", fields: [createdby], references: [id], map: "Order_createdby_fkey")
-  customer   User            @relation("CustomerOrders", fields: [customerid], references: [id], map: "Order_customerid_fkey")
-  shipping   ShippingAddress @relation(fields: [shippingId], references: [id], map: "Order_shippingId_fkey")
-  items      OrderItem[]
+  id              String          @id @default(uuid())
+  customerid      String
+  total           Decimal
+  status          OrderStatus?    @default(Pending)
+  payment         PaymentStatus?  @default(Pending)
+  date            DateTime        @default(now())
+  duedate         DateTime?
+  createdby       String
+  shippingId      String
+  creator         User            @relation("CreatedOrders", fields: [createdby], references: [id], map: "Order_createdby_fkey")
+  customer        User            @relation("CustomerOrders", fields: [customerid], references: [id], map: "Order_customerid_fkey")
+  shipping        ShippingAddress @relation(fields: [shippingId], references: [id], map: "Order_shippingId_fkey")
+  items           OrderItem[]
+  paymentMode     String          @default("COD") @map("payment_mode")
+  transactionId   String? @map("transaction_id")
+  merchantOrderId String? @map("merchant_order_id")
+  bankReferenceId String? @map("bank_reference_id")
 
   @@index([createdby], map: "Order_createdby_fkey")
   @@index([customerid], map: "Order_customerid_fkey")

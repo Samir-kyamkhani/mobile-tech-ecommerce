@@ -23,6 +23,7 @@ const Dashboard = () => {
       const product = order.items?.[0]?.product || {};
       const customer = order.customer || {};
       const itemCount = order.items?.length || 0;
+      const shipping = order.shipping || {};
 
       return {
         id: order.id,
@@ -34,6 +35,20 @@ const Dashboard = () => {
         total: order.total || "0",
         status: order.status || "Pending",
         payment: order.payment || "Pending",
+        bankReferenceId: order.bankReferenceId || "N/A",
+
+        merchantOrderId: order.merchantOrderId || "N/A",
+        paymentMode: order.paymentMode || "COD",
+
+        transactionId: order.transactionId || "N/A",
+        shippingAddress: {
+          firstName: shipping.firstName || "N/A",
+          lastName: shipping.lastName || "N/A",
+          email: shipping.email || "N/A",
+          address: shipping.address || "N/A",
+          city: shipping.city || "N/A",
+          zip: shipping.zip || "N/A",
+        },
         date: order.date ? new Date(order.date).toLocaleDateString() : "N/A",
         dueDate: order.duedate
           ? new Date(order.duedate).toLocaleDateString()
@@ -153,6 +168,11 @@ const Dashboard = () => {
                   "Date",
                   "Due Date",
                   "Items",
+                  "Shipping Address",
+                  "Transaction ID",
+                  "Bank Reference ID",
+                  "Merchant Order ID",
+                  "Payment Method",
                 ].map((h) => (
                   <th
                     key={h}
@@ -261,6 +281,52 @@ const Dashboard = () => {
                       {order.dueDate}
                     </td>
                     <td className="px-6 py-4 text-sm">{order.items}</td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="text-xs bg-gray-50 p-2 rounded">
+                        <div className="font-medium text-gray-900">
+                          {order.shippingAddress.firstName}{" "}
+                          {order.shippingAddress.lastName}
+                        </div>
+                        <div className="text-gray-600">
+                          {order.shippingAddress.address}
+                        </div>
+                        <div className="text-gray-600">
+                          {order.shippingAddress.city},{" "}
+                          {order.shippingAddress.zip}
+                        </div>
+                        <div className="text-gray-600">
+                          {order.shippingAddress.email}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="text-xs bg-blue-50 p-1 rounded text-blue-700 font-mono">
+                        {order.transactionId === null ? (
+                          <span className="text-gray-500">N/A</span>
+                        ) : (
+                          order.transactionId
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="text-xs bg-blue-50 p-1 rounded text-blue-700 font-mono">
+                        {order.bankReferenceId === "N/A" ? (
+                          <span className="text-gray-500">N/A</span>
+                        ) : (
+                          order.bankReferenceId
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <div className="text-xs bg-blue-50 p-1 rounded text-blue-700 font-mono">
+                        {order.merchantOrderId === "N/A" ? (
+                          <span className="text-gray-500">N/A</span>
+                        ) : (
+                          order.merchantOrderId
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm">{order.paymentMode}</td>
                   </tr>
                 ))
               )}
@@ -388,6 +454,63 @@ const Dashboard = () => {
                   <strong>Items:</strong> {order.items}{" "}
                   {order.items === 1 ? "item" : "items"}
                 </p>
+
+                <div className="text-sm text-gray-500 mb-2 bg-gray-50 p-2 rounded">
+                  <strong className="block">Shipping Address:</strong>
+                  <div className="text-xs mt-1">
+                    {order.shippingAddress.firstName}{" "}
+                    {order.shippingAddress.lastName}
+                    <br />
+                    {order.shippingAddress.address}
+                    <br />
+                    {order.shippingAddress.city}, {order.shippingAddress.zip}
+                    <br />
+                    {order.shippingAddress.email}
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500 mb-1">
+                  <strong>Transaction ID:</strong>
+                  <br />
+                  <span className="text-xs bg-blue-50 p-1 rounded text-blue-700 font-mono">
+                    {order.transactionId === null ? (
+                      <span className="text-gray-500">N/A</span>
+                    ) : (
+                      order.transactionId
+                    )}
+                  </span>
+                </p>
+                <p className="text-sm text-gray-500 mb-1">
+                  <strong>Bank Reference ID:</strong>
+                  <br />
+                  <span className="text-xs bg-blue-50 p-1 rounded text-blue-700 font-mono">
+                    {order.bankReferenceId === "N/A" ? (
+                      <span className="text-gray-500">N/A</span>
+                    ) : (
+                      order.bankReferenceId
+                    )}
+                  </span>
+                </p>
+                <p className="text-sm text-gray-500 mb-1">
+                  <strong>Merchant Order ID:</strong>
+                  <br />
+                  <span className="text-xs bg-blue-50 p-1 rounded text-blue-700 font-mono">
+                    {order.merchantOrderId === "N/A" ? (
+                      <span className="text-gray-500">N/A</span>
+                    ) : (
+                      order.merchantOrderId
+                    )}
+                  </span>
+                </p>
+                <h3 className=" text-md text-blue-900  mb-3">
+                  Payment Method:
+                  <span className="text-gray-700 ml-2 ">
+                    {order.paymentMode === "COD" ? (
+                      <span className="text-gray-500">COD</span>
+                    ) : (
+                      order.paymentMode
+                    )}
+                  </span>
+                </h3>
               </div>
             ))
           )}

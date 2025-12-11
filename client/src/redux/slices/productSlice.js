@@ -62,7 +62,7 @@ export const createProduct = (productData) => async (dispatch) => {
         },
       }
     );
-    console.log(res.data.data.product);
+
     
 
     dispatch(
@@ -147,7 +147,7 @@ export const deleteProduct = (id) => async (dispatch) => {
       })
     );
   } catch (error) {
-    // dispatch(productFail(handleError(error)));
+    dispatch(productFail(handleError(error)));
     toast.error("This product can't be deleted as it is linked to existing orders.");
   }
 };

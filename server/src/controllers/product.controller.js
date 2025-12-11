@@ -16,7 +16,6 @@ const createProduct = asyncHandler(async (req, res) => {
   const imagePaths =
     req.files?.map((file) => `/uploads/${file.filename}`) || [];
 
-  console.log("===================================", req.files);
 
   if (role !== "Admin") {
     return ApiError.send(res, 403, "Only admins can create a product.");

@@ -5,6 +5,7 @@ import categoryReducer from "./slices/categorySlice.js";
 import productReducer from "./slices/productSlice.js";
 import orderReducer from "./slices/orderSlice.js";
 import userReducer from "./slices/totalUsersSlice.js";
+import paymentReducer from "./slices/paymentSlice.js";
 
 export const store = configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export const store = configureStore({
     product: productReducer,
     order: orderReducer,
     user: userReducer,
+    payment: paymentReducer,
   },
 });

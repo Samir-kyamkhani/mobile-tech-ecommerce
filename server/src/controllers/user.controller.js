@@ -133,7 +133,7 @@ const login = asyncHandler(async (req, res) => {
 
   const accessToken = generateAccessToken(user.id, user.email, user.role);
 
-  console.log(accessToken);
+
 
   const { password: _, ...userSafe } = user;
 

@@ -85,7 +85,7 @@ export const signup = (formData) => async (dispatch) => {
   dispatch(authRequest());
   try {
     const { data } = await axios.post(`${baseURL}/auth/signup`, formData);
-    console.log("data", data);
+  
     
     dispatch(
       authSuccess({

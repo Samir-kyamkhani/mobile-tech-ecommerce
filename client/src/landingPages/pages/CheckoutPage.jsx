@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Truck, Shield, Star, Minus, Plus, X, CheckCircle } from "lucide-react";
 import { createOrder, getAllOrders } from "../../redux/slices/orderSlice";
+import { processOnlinePayment } from "../../redux/slices/paymentSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import { useIndiConnectSDK } from "../../hooks/useIndiConnectSDK";
 
 const CheckoutPage = () => {
   const { user } = useSelector((state) => state.auth);
@@ -22,6 +24,8 @@ const CheckoutPage = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("COD");
+  const { loaded: sdkLoaded, error: sdkError } = useIndiConnectSDK();
 
   const [shippingInfo, setShippingInfo] = useState(() => ({
     firstName: user?.name?.split(" ")[0] || "",
@@ -63,20 +67,10 @@ const CheckoutPage = () => {
     setShippingInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    if (!user) {
-      navigate("/login");
-      return;
-    }
 
-    if (user.role === "Admin") {
-      // Show an error message
-      alert("Only customers can place orders.");
-      return;
-    }
-
+ 
+  const handleCOD = async () => {
     setIsProcessing(true);
 
     const order = {
@@ -100,6 +94,123 @@ const CheckoutPage = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+
+  const handleOnlinePayment = async () => {
+    setIsProcessing(true);
+
+    try {
+      if (sdkError) return alert(sdkError);
+      if (!sdkLoaded) return alert("Payment SDK still loading...");
+
+      const CheckoutSDK = window.MyPG;
+
+      if (!CheckoutSDK) {
+        alert("Payment SDK not available");
+        return;
+      }
+
+      const mOrderId = "MOID-" + Date.now();
+      const amount = getTotalPrice();
+
+      const pg = new CheckoutSDK({
+        accessKey: import.meta.env.VITE_INDICONNECT_ACCESS_KEY,
+        secretKey: import.meta.env.VITE_INDICONNECT_SECRET_KEY,
+        mOrderId,
+        amount,
+        remark: "SHIV DHARATI COMMUNICATION PRIVATE LIMITED Order",
+
+        customer: {
+          name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+          email: shippingInfo.email,
+          phone: user.phone,
+        },
+
+        mState: "indicheckout",
+
+        mAllowPaymentMethods: {
+          web: [],
+          mobile: [],
+        },
+
+        onSuccess: async (response) => {
+         
+
+          try {
+            const result = await dispatch(
+              processOnlinePayment({
+                cart,
+                amount,
+                shipping: shippingInfo,
+                paymentResponse: response,
+              })
+            );
+
+            if (result?.success) {
+              setOrderDetails({
+                items: cart,
+                total: amount,
+                shipping: shippingInfo,
+                transactionId: response.transactionId,
+                paymentMethod: response.paymentMethod,
+              });
+
+              setOrderPlaced(true);
+              setCart([]);
+              localStorage.removeItem("cart");
+              window.dispatchEvent(new Event("cartUpdated"));
+              dispatch(getAllOrders());
+              setIsProcessing(false);
+            }
+          } catch (error) {
+            console.error("Payment processing error:", error);
+            alert(
+              `Payment success but order creation failed: ${
+                error.message || "Unknown error"
+              }`
+            );
+          }
+        },
+
+        onFailed: (res) => {
+          alert(`Payment failed: ${res.message || "Unknown error"}`);
+          setIsProcessing(false);
+        },
+
+        onClose: () => {
+       
+          setIsProcessing(false);
+        },
+      });
+
+      pg.open();
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("Failed to initialize payment.");
+      setIsProcessing(false);
+    }
+  };
+
+  const placeOrder = async () => {
+    if (paymentMethod === "COD") return handleCOD();
+    return handleOnlinePayment();
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    if (user.role === "Admin") {
+      alert("Only customers can place orders.");
+      return;
+    }
+
+    await placeOrder();
   };
 
   const firstProductId = orderDetails?.items?.[0]?.id;
@@ -159,6 +270,24 @@ const CheckoutPage = () => {
                 Email: {orderDetails.shipping.email}
               </p>
             </div>
+
+            {orderDetails.paymentMethod === "Online" && (
+              <>
+                <h3 className="text-md text-blue-900  mb-3">
+                  Transaction ID:
+                  <span className="text-gray-700 ml-2 ">
+                    {orderDetails.transactionId}
+                  </span>
+                </h3>
+
+                <h3 className=" text-md text-blue-900  mb-3">
+                  Payment Method:
+                <span className="text-gray-700 ml-2 ">
+                  {orderDetails.paymentMethod}
+                   </span>
+                </h3>
+              </>
+            )}
 
             <div className="flex flex-col md:flex-row items-center justify-center md:justify-between gap-4 mt-6 w-full">
               <Link
@@ -255,13 +384,46 @@ const CheckoutPage = () => {
                       Payment Method
                     </h3>
                   </div>
-                  <div>
-                    <p className="mb-2 font-semibold text-gray-800">
-                      Cash on Delivery
-                    </p>
-                    <p className="text-gray-600 text-sm max-w-md">
-                      Pay when you receive your items at your doorstep.
-                    </p>
+
+                  <div className="space-y-4">
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="COD"
+                        checked={paymentMethod === "COD"}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="w-4 h-4 text-blue-600"
+                      />
+                      <div>
+                        <p className="font-semibold text-gray-800">
+                          Cash on Delivery
+                        </p>
+                        <p className="text-gray-600 text-sm">
+                          Pay when you receive your items at your doorstep.
+                        </p>
+                      </div>
+                    </label>
+
+                    <label className="flex items-center space-x-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="Online"
+                        checked={paymentMethod === "Online"}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="w-4 h-4 text-blue-600"
+                      />
+                      <div>
+                        <p className="indic-pay-button font-semibold text-gray-800">
+                          Pay Online
+                        </p>
+                        <p className="text-gray-600 text-sm">
+                          Pay securely using UPI, Cards, Net Banking via
+                          IndiConnect.
+                        </p>
+                      </div>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -341,6 +503,7 @@ const CheckoutPage = () => {
                   <button
                     type="submit"
                     disabled={cart.length === 0 || isProcessing}
+                    id="indic-pay-button"
                     className={`mt-6 w-full py-3 rounded-xl text-white font-bold transition focus:outline-none focus:ring-2 focus:ring-blue-600 ${
                       cart.length === 0 || isProcessing
                         ? "bg-gray-400 cursor-not-allowed"
@@ -348,7 +511,11 @@ const CheckoutPage = () => {
                     }`}
                     aria-disabled={cart.length === 0 || isProcessing}
                   >
-                    {isProcessing ? "Processing..." : "Place Order"}
+                    {isProcessing
+                      ? "Processing..."
+                      : paymentMethod === "Online"
+                      ? "Proceed to Payment"
+                      : "Place Order"}
                   </button>
                 </div>
               </div>

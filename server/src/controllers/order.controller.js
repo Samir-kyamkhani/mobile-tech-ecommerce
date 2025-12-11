@@ -28,7 +28,7 @@ export const getAllOrders = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, "Orders fetched", orders));
   }
 
-  console.log("=============================================",id);
+
   
 
   if (role === "Customer") {
