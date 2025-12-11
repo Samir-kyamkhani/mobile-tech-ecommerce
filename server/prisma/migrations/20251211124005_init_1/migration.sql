@@ -72,6 +72,10 @@ CREATE TABLE `order` (
     `duedate` DATETIME(3) NULL,
     `createdby` VARCHAR(191) NOT NULL,
     `shippingId` VARCHAR(191) NOT NULL,
+    `payment_mode` VARCHAR(191) NOT NULL DEFAULT 'COD',
+    `transaction_id` VARCHAR(191) NULL,
+    `merchant_order_id` VARCHAR(191) NULL,
+    `bank_reference_id` VARCHAR(191) NULL,
 
     INDEX `Order_createdby_fkey`(`createdby`),
     INDEX `Order_customerid_fkey`(`customerid`),
