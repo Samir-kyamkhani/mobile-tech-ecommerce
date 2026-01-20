@@ -7,7 +7,7 @@ const data = "10mb";
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URI || "http://s40w084o4cg88co088o4kssc.147.93.20.127.sslip.io",
+    origin: process.env.CLIENT_URI || "http://wog4cgowsw84ws0w4ksggkkg.147.93.20.127.sslip.io/",
     credentials: true,
   }),
 );
