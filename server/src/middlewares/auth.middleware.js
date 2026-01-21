@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { ApiError } from "../utils/ApiError.js";
 
-const authMiddleware = async (req, __, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
     const accessToken =
       req.cookies?.accessToken ||
@@ -23,10 +23,10 @@ const authMiddleware = async (req, __, next) => {
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      return next(new ApiError("Access token has expired.", 401));
+      return ApiError.send(res, "Access token has expired.", 401);
     }
 
-    return next(new ApiError("Unauthorized access.", 401));
+    return ApiError.send(res, "Unauthorized access.", 401);
   }
 };
 
