@@ -48,7 +48,7 @@ model Category {
 model Product {
   id          String         @id @default(uuid())
   name        String
-  description String         @default("") @db.LongText
+  description String?        @db.LongText
   categoryid  String
   price       Decimal
   stock       Int
@@ -89,9 +89,9 @@ model Order {
   shipping        ShippingAddress @relation(fields: [shippingId], references: [id], map: "Order_shippingId_fkey")
   items           OrderItem[]
   paymentMode     String          @default("COD") @map("payment_mode")
-  transactionId   String? @map("transaction_id")
-  merchantOrderId String? @map("merchant_order_id")
-  bankReferenceId String? @map("bank_reference_id")
+  transactionId   String?         @map("transaction_id")
+  merchantOrderId String?         @map("merchant_order_id")
+  bankReferenceId String?         @map("bank_reference_id")
 
   @@index([createdby], map: "Order_createdby_fkey")
   @@index([customerid], map: "Order_customerid_fkey")
