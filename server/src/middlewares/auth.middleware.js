@@ -23,10 +23,10 @@ const authMiddleware = async (req, res, next) => {
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      return ApiError.send(res, "Access token has expired.", 401);
+      return next(new ApiError("Access token has expired.", 401));
     }
 
-    return ApiError.send(res, "Unauthorized access.", 401);
+    return next(new ApiError("Unauthorized access.", 401));
   }
 };
 
