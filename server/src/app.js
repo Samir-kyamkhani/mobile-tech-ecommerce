@@ -7,15 +7,25 @@ const data = "10mb";
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URI || "http://wog4cgowsw84ws0w4ksggkkg.147.93.20.127.sslip.io/",
+    origin:
+      process.env.CLIENT_URI ||
+      "http://wog4cgowsw84ws0w4ksggkkg.147.93.20.127.sslip.io/",
     credentials: true,
   }),
 );
 
 app.use(express.json({ limit: data }));
-app.use(express.urlencoded({ extended: true, limit: "10mb", }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/uploads", express.static("public/uploads"));
 app.use(cookieParser());
+
+app.use((err, req, res, next) => {
+  console.error("ERROR 💥", err);
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
 
 import userRouter from "./routes/user.routes.js";
 import customerRouter from "./routes/customer.routes.js";
