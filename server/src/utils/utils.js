@@ -11,8 +11,8 @@ import fs from "fs";
 
 export const cookieOptions = {
   httpOnly: true,
-  secure: true,
-  sameSite: "none",
+  secure: false,
+  sameSite: "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
