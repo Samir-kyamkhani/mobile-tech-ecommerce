@@ -7,12 +7,11 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm install
 
-# copy source
+# copy source code
 COPY . .
 
-# build react app
+# build the project
 RUN npm run build
-
 
 # ---------- Stage 2: Serve ----------
 FROM nginx:alpine
@@ -20,8 +19,11 @@ FROM nginx:alpine
 # remove default nginx html
 RUN rm -rf /usr/share/nginx/html/*
 
-# copy build output
+# copy build output from dist folder
 COPY --from=build /app/dist /usr/share/nginx/html
+
+# copy custom nginx config for SPA routing
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # expose port
 EXPOSE 80
