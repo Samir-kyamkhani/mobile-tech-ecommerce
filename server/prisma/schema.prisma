@@ -48,7 +48,7 @@ model Category {
 model Product {
   id          String         @id @default(uuid())
   name        String
-  description String         @default("") @db.LongText
+  description String         @db.LongText
   categoryid  String
   price       Decimal
   stock       Int
